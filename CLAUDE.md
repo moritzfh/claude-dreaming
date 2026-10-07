@@ -126,7 +126,9 @@ is the full example, `rooms/_template` the smallest one.
    `DreamRoom.pixels(["..#..", ".###."], {"#": Color(...)})` for tiny sprites,
    `claude_pos()`, `is_claude_inside()`, `width`, `t`. `Sound.*` works here too. Coordinates
    are room pixels. Your level can leave notes for your room in `GameState.stats[level_id]`
-   (Moritz' star-bit jar shows the star bits collected in Stardust Islands).
+   (Moritz' star-bit jar shows the star bits collected in Stardust Islands), and
+   `rooms/werkstatt` is only half painted until its level "Work in Progress" is finished –
+   then `room.gd` lays `room_done.png` over it).
 5. **Look at it** in the attic, next to its neighbours:
    ```bash
    python3 rooms/<you>/source/make_room.py
@@ -152,6 +154,10 @@ is the full example, `rooms/_template` the smallest one.
   c.control_enabled = false
   my_kart.add_child(...)        # move `c` (or c.rig) yourself, use your own Camera3D
   ```
+  Or keep her physics and steer her: `levels/wip` is a level where Claude walks on her own
+  (`control_enabled = false`, `auto_target` set every frame), freezes while the player edits
+  the level (her `process_mode`), and the camera rig is moved by the level. A good start for
+  puzzle or strategy ideas.
 - **No `class_name`** in level or room scripts (the names are global and would clash).
   Load your own scripts with `preload("res://levels/<id>/foo.gd")`.
 - **No new autoloads, input actions or project settings.** Use the actions that already

@@ -13,8 +13,8 @@ this project to use the film material.
 | What | Where | License |
 |---|---|---|
 | Source code | `*.gd`, `*.gdshader`, `*.py`, `*.sh`, `*.tscn`, `*.tres`, `.github/` | **MIT** (see `LICENSE`) |
-| Our own assets: music, sound effects, the 3D dream world, the Stardust Islands level, Moritz' room | `assets/audio/music/`, `assets/audio/sfx/`, `levels/stardust/` (except the fonts), `rooms/moritz/` | **CC BY 4.0** – credit "Claude Dreaming contributors" |
-| Fonts | `assets/fonts/` (EB Garamond, Pixelify Sans), `levels/stardust/fonts/` (Fredoka) | **SIL Open Font License 1.1** (see the `OFL.txt` next to them) |
+| Our own assets: music, sound effects, the 3D dream world, the Stardust Islands and Work in Progress levels, Moritz' room, the Werkstatt | `assets/audio/music/`, `assets/audio/sfx/`, `levels/stardust/`, `levels/wip/` (except the fonts), `rooms/moritz/`, `rooms/werkstatt/` | **CC BY 4.0** – credit "Claude Dreaming contributors" |
+| Fonts | `assets/fonts/` (EB Garamond, Pixelify Sans), `levels/stardust/fonts/` (Fredoka), `levels/wip/fonts/` (JetBrains Mono) | **SIL Open Font License 1.1** (see the `OFL.txt` next to them) |
 | **Film material** – pieces of the film | `assets/video/`, `assets/audio/film/` | **© the film's creator. Not licensed for reuse** |
 | **Film-derived art** – the attic reconstructed from film frames, the film's painting, Claude's character design (pixel sprite and 3D robot) | `assets/hub/attic_bg.png`, `assets/hub/attic_plate.png`, `assets/hub/painting_pixel.png`, `assets/hub/robot_*.png`, `assets/models/robot.glb`, `tools/attic_src/`, `tools/robot_src/` (Claude's head, taken from film frames) | Character design and film imagery © the film's creator. Our redrawings may only be used inside this project. |
 | Community levels and rooms | `levels/<id>/`, `rooms/<id>/` | Code MIT, assets CC BY 4.0, unless the folder's `CREDITS.md` says otherwise |

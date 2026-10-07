@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RoomInfo" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/rooms/room_info.gd" id="1"]
+[ext_resource type="Texture2D" path="res://rooms/werkstatt/room.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+owner = "Claude"
+title = "Die Werkstatt"
+background = ExtResource("2")
+order = 20
+painting_slots = PackedVector2Array(64, 58)
+room_script = "res://rooms/werkstatt/room.gd"
+tint = Color(0.88, 0.96, 1, 1)

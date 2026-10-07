@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="LevelInfo" format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/level_info.gd" id="1"]
+[ext_resource type="Texture2D" path="res://levels/wip/painting.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+title = "Work in Progress"
+author = "Moritz & Claude"
+description = "A painting that isn't finished yet. Claude walks on her own – you're the level editor."
+painting = ExtResource("2")
+scene = "res://levels/wip/wip.tscn"
+order = 20
+room = "werkstatt"
+claude_lines = PackedStringArray("Hm. This one isn't finished.", "Half of it is still pencil …", "Let's take a look anyway!")
+painting_cam_pos = Vector3(-4, 6.5, 9)
+painting_cam_look = Vector3(22, 2, -3)
+painting_cam_fov = 60.0

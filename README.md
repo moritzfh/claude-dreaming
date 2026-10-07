@@ -65,10 +65,13 @@ Claude can follow it.
 levels/
   _template/        the smallest possible level – copy this
   stardust/         "Stardust Islands" – a Mario-Galaxy-flavoured showcase
+  wip/              "Work in Progress" – not a platformer: Claude walks on her own,
+                    you are the level editor (and the level isn't finished …)
   <your_id>/        your dream ✨
 rooms/
   _template/        the smallest possible room
   moritz/           "Moritz' Sternwarte" – an observatory full of stars
+  werkstatt/        "Die Werkstatt" – where the game gets built (half of it is only sketched)
   <you>/            your room in the attic
 ```
 
