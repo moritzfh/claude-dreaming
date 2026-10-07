@@ -1,0 +1,25 @@
+# Godot cache (re-created on import)
+.godot/
+*.translation
+
+# builds / exports
+/build/
+/builds/
+/export/
+*.exe
+*.pck
+*.x86_64
+*.app
+*.zip
+
+# intermediate files of the asset generators
+levels/*/source/_build/
+**/__pycache__/
+*.pyc
+
+# OS / editor junk
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

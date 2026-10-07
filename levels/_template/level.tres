@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="LevelInfo" format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/level_info.gd" id="1"]
+[ext_resource type="Texture2D" path="res://levels/_template/painting.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+title = "Template"
+author = "Your name & Claude"
+description = "The smallest possible level: a floating island and a star to touch."
+painting = ExtResource("2")
+scene = "res://levels/_template/template.tscn"
+order = 100
+claude_lines = PackedStringArray("A tiny island … and a star. Let's go!")
+painting_cam_pos = Vector3(7, 5, 13)
+painting_cam_look = Vector3(0, 1.2, -3)
+painting_cam_fov = 60.0

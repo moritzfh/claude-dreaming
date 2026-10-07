@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="LevelInfo" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/level_info.gd" id="1"]
+[ext_resource type="Texture2D" path="res://levels/stardust/painting.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+title = "Stardust Islands"
+author = "Moritz & Claude"
+description = "Floating islands, candy stars and two tiny planets – somewhere out there waits the Dream Star."
+painting = ExtResource("2")
+scene = "res://levels/stardust/stardust.tscn"
+order = 10
+room = "moritz"
+claude_lines = PackedStringArray("Islands floating between the stars.", "I wonder what's waiting at the end of the sky.", "Let's go!")
+painting_cam_pos = Vector3(-7, 5.5, 20)
+painting_cam_look = Vector3(4, 3, -40)
+painting_cam_fov = 60.0

@@ -1,0 +1,12 @@
+# normalise line endings for text, never touch binaries
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ogg binary
+*.ogv binary
+*.wav binary
+*.glb binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.otf binary

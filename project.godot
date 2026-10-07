@@ -1,0 +1,46 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Claude Dreaming - Playable"
+run/main_scene="res://scenes/title.tscn"
+config/features=PackedStringArray("4.7", "Forward Plus")
+
+[autoload]
+
+Audio="*res://scripts/audio/sound.gd"
+Dev="*res://scripts/dev_tools.gd"
+Menus="*res://scripts/ui/menus.gd"
+
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+window/size/window_width_override=1600
+window/size/window_height_override=900
+window/stretch/mode="canvas_items"
+window/stretch/aspect="expand"
+
+[rendering]
+
+lights_and_shadows/directional_shadow/size=8192
+lights_and_shadows/directional_shadow/soft_shadow_filter_quality=3
+textures/default_filters/anisotropic_filtering_level=4
+anti_aliasing/quality/msaa_3d=2
+environment/defaults/default_clear_color=Color(0.5, 0.45, 0.7, 1)
+anti_aliasing/quality/screen_space_aa=1
+
+[shader_globals]
+
+player_pos={
+"type": "vec3",
+"value": Vector3(0, -100, 0)
+}

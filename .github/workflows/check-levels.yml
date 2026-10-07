@@ -1,0 +1,46 @@
+name: Check levels
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GODOT_VERSION: 4.7.2
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Level folder rules
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            bash tools/ci/check_rules.sh "origin/${{ github.base_ref }}"
+          else
+            bash tools/ci/check_rules.sh
+          fi
+
+      - name: Cache Godot
+        id: cache-godot
+        uses: actions/cache@v4
+        with:
+          path: ~/godot
+          key: godot-${{ env.GODOT_VERSION }}
+
+      - name: Download Godot ${{ env.GODOT_VERSION }}
+        if: steps.cache-godot.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p ~/godot && cd ~/godot
+          curl -sSL -o godot.zip "https://github.com/godotengine/godot/releases/download/${GODOT_VERSION}-stable/Godot_v${GODOT_VERSION}-stable_linux.x86_64.zip"
+          unzip -q godot.zip && rm godot.zip
+          mv Godot_v${GODOT_VERSION}-stable_linux.x86_64 godot && chmod +x godot
+
+      - name: Import project
+        run: ~/godot/godot --headless --path . --import 2>&1 | tail -n 20
+
+      - name: Play every level for a few seconds
+        run: ~/godot/godot --headless --path . --fixed-fps 30 res://tools/ci/smoke_levels.tscn

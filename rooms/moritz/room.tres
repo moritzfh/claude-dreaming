@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="RoomInfo" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/rooms/room_info.gd" id="1"]
+[ext_resource type="Texture2D" path="res://rooms/moritz/room.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+owner = "Moritz"
+title = "Moritz' Sternwarte"
+background = ExtResource("2")
+order = 10
+painting_slots = PackedVector2Array(190, 58, 252, 58)
+room_script = "res://rooms/moritz/room.gd"
+tint = Color(0.8, 0.82, 1, 1)
