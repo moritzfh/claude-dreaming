@@ -965,7 +965,7 @@ func _physics_process(delta: float) -> void:
 func _collect_bit(b: MeshInstance3D) -> void:
 	b.visible = false
 	bit_count += 1
-	# the jar of star bits in Moritz' room in the attic shows the best count
+	# the jar of star bits in Rusty's room in the attic shows the best count
 	var st: Dictionary = GameState.stats.get("stardust", {})
 	if bit_count > int(st.get("bits", 0)):
 		st["bits"] = bit_count

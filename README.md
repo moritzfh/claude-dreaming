@@ -37,21 +37,8 @@ by someone with their own Claude.
 4. **Esc** opens the pause menu everywhere: *Zurück in den Dachboden* takes you from any
    dream back into the attic. Progress is saved automatically.
 
-### Controls
-| Key | Action |
-|---|---|
-| WASD / left stick | walk |
-| Shift / B | run |
-| Space / A | jump – **hold in the air to glide** · in Stardust Islands: press again in the air = double jump, jump right after landing while running = triple jump |
-| E / X | interact · step into a painting · spin (in some levels) |
-| Q / Y | change Claude's face |
-| Mouse / right stick | camera |
-| R | respawn |
-| Hold Enter | skip the film |
-| **Esc / Start** | pause menu: back to the attic, settings, main menu |
-| Hold Backspace | leave a gallery level |
-| **F1** | dev menu: jump to any part of the game or any level |
-| F4 / F6 / F3 | fast forward · collect all colours · graphics low/high |
+Every level can have its own controls – a level tells you how it is played when you step
+into it. **F1** opens the dev menu (jump to any part of the game or any level).
 
 ## Make your own dream
 
@@ -70,7 +57,7 @@ levels/
   <your_id>/        your dream ✨
 rooms/
   _template/        the smallest possible room
-  moritz/           "Moritz' Sternwarte" – an observatory full of stars
+  rusty/            "Rustys Sternwarte" – an observatory full of stars
   werkstatt/        "Die Werkstatt" – where the game gets built (half of it is only sketched)
   <you>/            your room in the attic
 ```
@@ -89,7 +76,7 @@ rooms/
 
 ### Exporting a build
 In **Project → Export**, add your platform and set
-*Resources → Filters to exclude files* to `tools/*, scenes/playtest*, levels/*/source/*`.
+*Resources → Filters to exclude files* to `tools/*, docs/*, scenes/playtest*, levels/*/source/*`.
 
 ## Licenses
 

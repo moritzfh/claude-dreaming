@@ -1,6 +1,6 @@
 """The smallest possible room: an empty attic corridor piece with one
 picture lamp – copy this folder to rooms/<your_name>/ and paint your own
-room here (see rooms/moritz/source/make_room.py for a full example).
+room here (see rooms/rusty/source/make_room.py for a full example).
 
 Rules of thumb (so all rooms fit together):
   - exactly 216 px high, 240-480 px wide, one pixel = one art pixel

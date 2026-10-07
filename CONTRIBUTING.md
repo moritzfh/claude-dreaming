@@ -52,7 +52,7 @@ license for specific files.
 Every contributor gets **one room** in the attic, left of Claude's studio, and all of their
 dreams hang in it. Your Claude paints it with code, in the attic's pixel-art style, and can
 add things that move, glow or can be used (a gramophone that plays your level's music, a
-telescope with shooting stars, …). `rooms/moritz` is the full example – CLAUDE.md
+telescope with shooting stars, …). `rooms/rusty` is the full example – CLAUDE.md
 (section 1b) has the recipe. Ask for it in the same breath as your level:
 
 > … and build my room in the attic: a cosy rainy-day reading nook with a cat that sleeps

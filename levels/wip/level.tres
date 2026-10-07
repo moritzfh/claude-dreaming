@@ -6,7 +6,7 @@
 [resource]
 script = ExtResource("1")
 title = "Work in Progress"
-author = "Moritz & Claude"
+author = "Rusty & Claude"
 description = "A painting that isn't finished yet. Claude walks on her own – you're the level editor."
 painting = ExtResource("2")
 scene = "res://levels/wip/wip.tscn"

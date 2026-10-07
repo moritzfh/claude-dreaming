@@ -87,7 +87,7 @@ scripts in `levels/<id>/source/`.
 
 Every contributor gets one room in the attic. It sits left of Claude's studio, in the order of
 `order`, and all of your paintings hang in it. Make it yours: your style, your things – the
-attic should feel like a house full of friends. `rooms/moritz` (an observatory full of stars)
+attic should feel like a house full of friends. `rooms/rusty` (an observatory full of stars)
 is the full example, `rooms/_template` the smallest one.
 
 1. Copy `rooms/_template/` to `rooms/<you>/` (lowercase, `a-z0-9_`). Again: **no `*.uid` or
@@ -95,7 +95,7 @@ is the full example, `rooms/_template` the smallest one.
 2. **Paint the room** with code in `rooms/<you>/source/make_room.py`. It writes `room.png`.
    The attic is native pixel art (one art pixel = 5 screen pixels at 1080p). Look at
    `tools/make_attic.py` (the studio, the hallway and the corridor) and at
-   `rooms/moritz/source/make_room.py` before you start, and match them:
+   `rooms/rusty/source/make_room.py` before you start, and match them:
    - exactly **216 px high**, 240–480 px wide
    - ceiling beam at y 16–24, wall down to y 145, baseboard y 145–152, floor from y 153;
      floor boards in the same perspective (copy the floor code)
@@ -107,7 +107,7 @@ is the full example, `rooms/_template` the smallest one.
    - leave space for your **paintings**: gold frames 56×35, top at y 58 like everywhere in the
      attic, with a picture lamp above (the game draws the frame and the oil painting; you
      list the frames' top-left corners in `painting_slots`)
-3. **`room.tres`**: `owner` (your name), `title` ("Moritz' Sternwarte"), `background`,
+3. **`room.tres`**: `owner` (your name), `title` ("Rustys Sternwarte"), `background`,
    `order`, `painting_slots`, `tint` (the light on Claude in your room) and optionally
    `room_script`.
 4. **Things that move, glow or can be used** go in `room.gd` (`extends DreamRoom`):
@@ -126,7 +126,7 @@ is the full example, `rooms/_template` the smallest one.
    `DreamRoom.pixels(["..#..", ".###."], {"#": Color(...)})` for tiny sprites,
    `claude_pos()`, `is_claude_inside()`, `width`, `t`. `Sound.*` works here too. Coordinates
    are room pixels. Your level can leave notes for your room in `GameState.stats[level_id]`
-   (Moritz' star-bit jar shows the star bits collected in Stardust Islands), and
+   (Rusty's star-bit jar shows the star bits collected in Stardust Islands), and
    `rooms/werkstatt` is only half painted until its level "Work in Progress" is finished –
    then `room.gd` lays `room_done.png` over it).
 5. **Look at it** in the attic, next to its neighbours:

@@ -1,4 +1,4 @@
-"""Moritz' Sternwarte – a starry observatory room in the attic, in the
+"""Rustys Sternwarte – a starry observatory room in the attic, in the
 spirit of a certain galaxy-hopping plumber's observatory: night-blue walls
 with little gold stars, a big round window full of planets, a brass
 telescope, a gramophone, a window seat and a round rug with a star.
@@ -8,8 +8,8 @@ Native pixel art like the rest of the attic: 216 px high, one art pixel =
 down to y 145, baseboard 145-152, floor from 153). Things that move (the
 planet mobile, twinkling stars, the comet) are added by ../room.gd.
 
-Run from the repo root:  python3 rooms/moritz/source/make_room.py
-Writes rooms/moritz/room.png
+Run from the repo root:  python3 rooms/rusty/source/make_room.py
+Writes rooms/rusty/room.png
 """
 import os
 import numpy as np
@@ -54,6 +54,7 @@ FONT = {
     'M': ['101', '111', '111', '101', '101'], 'N': ['101', '111', '111', '111', '101'], 'O': ['010', '101', '101', '101', '010'],
     'R': ['110', '101', '110', '101', '101'], 'S': ['011', '100', '010', '001', '110'], 'T': ['111', '010', '010', '010', '010'],
     'W': ['101', '101', '111', '111', '101'], 'Z': ['111', '001', '010', '100', '111'], "'": ['010', '010', '000', '000', '000'],
+    'U': ['101', '101', '101', '101', '111'], 'Y': ['101', '101', '010', '010', '010'],
     ' ': ['000', '000', '000', '000', '000'],
 }
 
@@ -404,7 +405,7 @@ def build():
             img[y, x] = c
 
     # ------------------------------------------------ name plate hanging from the beam
-    text = "MORITZ' STERNWARTE"
+    text = "RUSTYS STERNWARTE"
     tw = len(text) * 4 - 1
     sw = tw + 8
     sx = 88 - sw // 2

@@ -1,4 +1,4 @@
-## Moritz' Sternwarte: what moves, glows and can be used in the observatory.
+## Rustys Sternwarte: what moves, glows and can be used in the observatory.
 ## (The room's picture is room.png, made by source/make_room.py.)
 extends DreamRoom
 

@@ -5,7 +5,7 @@ extends Resource
 
 ## your name / handle (shown on the guestbook)
 @export var owner := ""
-## the room's name, e.g. "Moritz' Sternwarte"
+## the room's name, e.g. "Rustys Sternwarte"
 @export var title := ""
 ## the room as pixel art, exactly 216 px high (any width, 240–480 is good)
 @export var background: Texture2D

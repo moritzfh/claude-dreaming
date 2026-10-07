@@ -236,7 +236,7 @@ func build_controls(box: VBoxContainer, back: Callable) -> void:
 
 func build_credits(box: VBoxContainer, back: Callable) -> void:
 	box.add_child(heading("Credits"))
-	var text := "Ein spielbarer Traum nach dem Kurzfilm „Claude Dreaming“\n(youtu.be/8BtSRB_LieE) – Film, Musik und die Figur Claude:\nder Ersteller des Videos, mit Claude. Verwendet mit freundlicher Erlaubnis.\n\nSpiel: Moritz & Claude · Godot Engine 4.7"
+	var text := "Ein spielbarer Traum nach dem Kurzfilm „Claude Dreaming“\n(youtu.be/8BtSRB_LieE) – Film, Musik und die Figur Claude:\nder Ersteller des Videos, mit Claude. Verwendet mit freundlicher Erlaubnis.\n\nSpiel: Rusty & Claude · Godot Engine 4.7"
 	box.add_child(label(text, 24, CREAM, FONT_ITALIC, true))
 	var people: Array = []
 	for r in RoomRegistry.all(): people.append("%s – %s" % [r.owner, r.title])
