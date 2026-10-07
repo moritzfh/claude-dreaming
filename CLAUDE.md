@@ -157,7 +157,10 @@ is the full example, `rooms/_template` the smallest one.
   Or keep her physics and steer her: `levels/wip` is a level where Claude walks on her own
   (`control_enabled = false`, `auto_target` set every frame), freezes while the player edits
   the level (her `process_mode`), and the camera rig is moved by the level. A good start for
-  puzzle or strategy ideas.
+  puzzle or strategy ideas. `levels/prism_boulevard` is a kart racer: Claude sits in a kart
+  (`in_flight = true`), the karts live in "track space" (metres along and beside the road, see
+  `track.gd`), and the course is a list of turtle commands (`course.gd`). A good start for
+  racing or flying ideas.
 - **No `class_name`** in level or room scripts (the names are global and would clash).
   Load your own scripts with `preload("res://levels/<id>/foo.gd")`.
 - **No new autoloads, input actions or project settings.** Use the actions that already

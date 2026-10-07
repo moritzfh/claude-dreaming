@@ -57,6 +57,8 @@ levels/
   stardust/         "Stardust Islands" – a Mario-Galaxy-flavoured showcase
   wip/              "Work in Progress" – not a platformer: Claude walks on her own,
                     you are the level editor (and the level isn't finished …)
+  prism_boulevard/  "Prism Boulevard" – a kart race on a road of rainbow glass against
+                    seven rivals: drifts, a loop, a corkscrew, hyperspace, a glider jump
   <your_id>/        your dream ✨
 rooms/
   _template/        the smallest possible room

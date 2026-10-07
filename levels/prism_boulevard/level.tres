@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="LevelInfo" format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/level_info.gd" id="1"]
+[ext_resource type="Texture2D" path="res://levels/prism_boulevard/painting.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+title = "Prism Boulevard"
+author = "Rusty & Claude"
+description = "A kart race on a road of rainbow glass, high above a sea of clouds. Three laps against seven other dreaming Claudes."
+painting = ExtResource("2")
+scene = "res://levels/prism_boulevard/prism_boulevard.tscn"
+order = 15
+room = "rusty"
+claude_lines = PackedStringArray("A road made of rainbow glass …", "Is that … a race?", "Let's go!")
+painting_cam_pos = Vector3(-9, 7.5, 62)
+painting_cam_look = Vector3(2, 1.5, -10)
+painting_cam_fov = 60.0
