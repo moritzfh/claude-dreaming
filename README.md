@@ -6,9 +6,9 @@ as the intro. Then you are Claude, in the pixel-art attic: step into the paintin
 easel and play the dream in 3D, or visit the **friends' rooms** – every painting there is a level made
 by someone with their own Claude.
 
-[![Claude Dreaming – trailer](docs/trailer/thumbnail_trailer_A.jpg)](docs/trailer/trailer_a.mp4)
+[![Claude Dreaming – watch the trailer on YouTube](docs/trailer/thumbnail_trailer_A.jpg)](https://youtu.be/WpGvvH7Z8mk)
 
-▶ **[Trailer (1:37)](docs/trailer/trailer_a.mp4)** · [the 40-second cut](docs/trailer/trailer_b.mp4) ·
+▶ **[Watch the trailer on YouTube (1:37)](https://youtu.be/WpGvvH7Z8mk)** · [mp4](docs/trailer/trailer_a.mp4) · [the 40-second cut](docs/trailer/trailer_b.mp4) ·
 Shorts: [how to add your own dream](docs/trailer/short_explainer.mp4) · [“She's fine.”](docs/trailer/short_error.mp4)
 
 > 🇩🇪 **Kurz auf Deutsch:** Ein Fan-Spiel zum Kurzfilm über Claude, der träumt. Beim
