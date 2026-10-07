@@ -18,6 +18,7 @@ this project to use the film material.
 | **Film material** – pieces of the film | `assets/video/`, `assets/audio/film/` | **© the film's creator. Not licensed for reuse** |
 | **Film-derived art** – the attic reconstructed from film frames, the film's painting, Claude's character design (pixel sprite and 3D robot) | `assets/hub/attic_bg.png`, `assets/hub/attic_plate.png`, `assets/hub/painting_pixel.png`, `assets/hub/robot_*.png`, `assets/models/robot.glb`, `tools/attic_src/`, `tools/robot_src/` (Claude's head, taken from film frames) | Character design and film imagery © the film's creator. Our redrawings may only be used inside this project. |
 | Community levels and rooms | `levels/<id>/`, `rooms/<id>/` | Code MIT, assets CC BY 4.0, unless the folder's `CREDITS.md` says otherwise |
+| Trailers and shorts | `docs/trailer/` | Made by Rusty & Claude. They show the game, including the film-derived art above, so the same limits apply to those parts |
 
 The game plays the whole film once as its intro (`assets/video/part_a*.ogv` the pixel
 opening, `part_m*.ogv` the 3D middle, `part_b.ogv` waking up, with the soundtrack

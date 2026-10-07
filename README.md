@@ -6,7 +6,10 @@ as the intro. Then you are Claude, in the pixel-art attic: step into the paintin
 easel and play the dream in 3D, or visit the **friends' rooms** – every painting there is a level made
 by someone with their own Claude.
 
-![Stardust Islands](levels/stardust/painting.png)
+[![Claude Dreaming – trailer](docs/trailer/thumbnail_trailer_A.jpg)](docs/trailer/trailer_a.mp4)
+
+▶ **[Trailer (1:37)](docs/trailer/trailer_a.mp4)** · [the 40-second cut](docs/trailer/trailer_b.mp4) ·
+Shorts: [how to add your own dream](docs/trailer/short_explainer.mp4) · [“She's fine.”](docs/trailer/short_error.mp4)
 
 > 🇩🇪 **Kurz auf Deutsch:** Ein Fan-Spiel zum Kurzfilm über Claude, der träumt. Beim
 > ersten Start läuft der ganze Film als Intro (überspringbar), danach bist du auf dem
@@ -73,6 +76,7 @@ rooms/
 - `scripts/player.gd`, `scripts/robot_rig.gd` – Claude (controller and animated robot)
 - `shaders/` – materials and screen effects
 - `tools/` – asset generators (pixel art, music and sound synth in Python), playtests, CI checks
+- `docs/trailer/` – the trailers and shorts (small copies; not part of the game)
 
 ### Exporting a build
 In **Project → Export**, add your platform and set
