@@ -9,7 +9,7 @@ static var master := 0.9        # 0..1
 static var music := 0.8
 static var sfx := 0.9
 static var fullscreen := false
-static var low_quality := false
+static var low_quality := OS.has_feature("web")   # the browser version starts with the lighter graphics
 static var mouse_sens := 1.0    # multiplier
 static var invert_y := false
 

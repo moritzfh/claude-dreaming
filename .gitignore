@@ -23,3 +23,6 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
+
+# local builds
+/Builds/

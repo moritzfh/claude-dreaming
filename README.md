@@ -81,8 +81,15 @@ rooms/
 - `docs/trailer/` – the trailers and shorts (small copies; not part of the game)
 
 ### Exporting a build
-In **Project → Export**, add your platform and set
-*Resources → Filters to exclude files* to `tools/*, docs/*, scenes/playtest*, levels/*/source/*`.
+`export_presets.cfg` has two presets: **Windows Desktop** (`Builds/ClaudeDreaming.exe`) and
+**Web** (`Builds/Web/index.html`, for itch.io). In **Project → Export** pick one and press
+*Export Project* (Godot offers to download the export templates the first time).
+
+The web build uses the smaller copies of the film in `assets/video_web/`
+(`bash tools/make_web_video.sh`), because itch.io allows at most 200 MB per file in a web
+game. It runs with the Compatibility renderer and starts with *Grafik: niedrig*. To put it
+on itch.io: zip the *contents* of `Builds/Web` (index.html at the top of the zip), upload it
+as an HTML project and tick *This file will be played in the browser*.
 
 ## Licenses
 

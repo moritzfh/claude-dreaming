@@ -235,6 +235,11 @@ func _begin_dream() -> void:
 	director.begin([])
 
 # ------------------------------------------------------------------ game flow
+## The film's clips: the browser version uses smaller 720p copies
+## (assets/video_web, made by tools/make_web_video.sh) so it fits on itch.io.
+static func film(file: String) -> String:
+	return ("res://assets/video_web/" if OS.has_feature("web") else "res://assets/video/") + file
+
 ## The first start: the whole film, from the pixel opening through the 3D
 ## dream to waking up in the attic – then the attic is playable. (The film's
 ## 3D middle is the original footage; the playable dream comes later, from
@@ -246,12 +251,12 @@ func _play_intro() -> void:
 	var files := []
 	var durs := []
 	for i in 6:
-		files.append("res://assets/video/part_a%d.ogv" % (i + 1))
+		files.append(film("part_a%d.ogv" % (i + 1)))
 		durs.append(458.0 / 30.0)
 	for i in 8:
-		files.append("res://assets/video/part_m%d.ogv" % (i + 1))
+		files.append(film("part_m%d.ogv" % (i + 1)))
 		durs.append((445.0 if i == 7 else 448.0) / 30.0)
-	files.append("res://assets/video/part_b.ogv")
+	files.append(film("part_b.ogv"))
 	durs.append(27.0)
 	video.play_chain(files, "film_full", 0.0, durs)
 	video.finished.connect(_on_intro_done)
@@ -268,7 +273,7 @@ func _on_intro_done(_tex: Texture2D) -> void:
 func _on_wake_up() -> void:
 	video = VideoChain.new()
 	add_child(video)
-	video.play_chain(["res://assets/video/part_b.ogv"], "film_b", 0.0, 27.0)
+	video.play_chain([film("part_b.ogv")], "film_b", 0.0, 27.0)
 	video.finished.connect(_on_video_b_done)
 	await get_tree().process_frame
 	get_viewport().disable_3d = true
