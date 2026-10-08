@@ -9,6 +9,6 @@ owner = "Rusty"
 title = "Rusty's Observatory"
 background = ExtResource("2")
 order = 10
-painting_slots = PackedVector2Array(190, 58, 252, 58)
+painting_slots = PackedVector2Array(190, 58, 252, 58, 314, 58)
 room_script = "res://rooms/rusty/room.gd"
 tint = Color(0.8, 0.82, 1, 1)
