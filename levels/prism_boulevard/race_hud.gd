@@ -369,7 +369,7 @@ func show_results(rows: Array, title: String) -> void:
 		row.add_child(tm)
 		results.add_child(row)
 	var hintl := _label(30, Color(0.85, 0.9, 1.0), 8, FONT_SB)
-	hintl.text = "Leertaste: weiter   ·   R: nochmal fahren"
+	hintl.text = "Space: continue   ·   R: race again"
 	hintl.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	results.add_child(hintl)
 	panel.modulate.a = 0.0

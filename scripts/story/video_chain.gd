@@ -45,7 +45,7 @@ func _ready() -> void:
 		v.finished.connect(_on_chunk_finished.bind(i))
 		_players.append(v)
 	_hint = Label.new()
-	_hint.text = "Enter halten: überspringen  ·  Esc: Menü"
+	_hint.text = "Hold Enter: skip  ·  Esc: menu"
 	_hint.add_theme_font_override("font", load("res://assets/fonts/EBGaramond-Italic.woff2"))
 	_hint.add_theme_font_size_override("font_size", 22)
 	_hint.add_theme_color_override("font_color", Color(1, 0.95, 0.85, 0.55))

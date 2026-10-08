@@ -26,8 +26,8 @@ const GREEN := Color(0.46, 0.86, 0.52)
 const RED := Color(1.0, 0.40, 0.37)
 const YELLOW := Color(1.0, 0.82, 0.32)
 const BLUE := Color(0.5, 0.82, 1.0)
-const NAMES := {"block": "Block", "ramp_r": "Rampe ↗", "ramp_l": "Rampe ↖", "spring": "Feder",
-	"col_add": "Kollision +", "col_del": "Kollision −"}
+const NAMES := {"block": "Block", "ramp_r": "Ramp ↗", "ramp_l": "Ramp ↖", "spring": "Spring",
+	"col_add": "Collision +", "col_del": "Collision −"}
 
 var level: Node
 var revealed := false
@@ -159,10 +159,10 @@ func _build_toolbar() -> void:
 		b.position = Vector2(10 + i * 60, 10)
 		_bar.add_child(b)
 		_btns.append([b, acts[i][1]])
-	_mode = _lbl("BEARBEITEN", 20, ORANGE, true)
+	_mode = _lbl("EDITING", 20, ORANGE, true)
 	_mode.position = Vector2(196, 9)
 	_bar.add_child(_mode)
-	_mode_sub = _lbl("Leertaste: Play · R: Reset", 13, DIM)
+	_mode_sub = _lbl("Space: play · R: reset", 13, DIM)
 	_mode_sub.position = Vector2(197, 38)
 	_bar.add_child(_mode_sub)
 
@@ -178,7 +178,7 @@ func _build_console() -> void:
 	_console = _panel(Color(0.1, 0.11, 0.13, 0.82))
 	_console.size = Vector2(580, 132)
 	_root.add_child(_console)
-	var tab := _lbl("Ausgabe", 15, DIM, true)
+	var tab := _lbl("Output", 15, DIM, true)
 	tab.position = Vector2(14, 6)
 	_console.add_child(tab)
 	_lines = VBoxContainer.new()
@@ -201,7 +201,7 @@ func _build_error() -> void:
 	var ic := _box(_draw_error_icon, Vector2(26, 26))
 	ic.position = Vector2(12, 7)
 	title.add_child(ic)
-	var tl := _lbl("Fehler", 19, TEXT, true)
+	var tl := _lbl("Error", 19, TEXT, true)
 	tl.position = Vector2(48, 8)
 	title.add_child(tl)
 	_err_msg = _lbl("", 24, TEXT, true)
@@ -419,7 +419,7 @@ func reveal() -> void:
 	_hot.position.x = -_hot.size.x - 40
 	tw.tween_property(_hot, "position:x", hx, 0.6).set_delay(0.15)
 	Sound.sfx("riser", -10.0, 1.4)
-	log_line("▶  Editor geöffnet – Claude.steuerung = null", "info")
+	log_line("▶  Editor opened – claude.controls = null", "info")
 
 ## the level is left: fade the whole editor out
 func hide_all() -> void:
@@ -470,10 +470,10 @@ func hotbar_center() -> Vector2:
 
 func mode_changed(playing: bool) -> void:
 	if _mode == null: return
-	_mode.text = "SPIELT" if playing else "BEARBEITEN"
+	_mode.text = "PLAYING" if playing else "EDITING"
 	_mode.add_theme_color_override("font_color", GREEN if playing else ORANGE)
 	for b in _btns: (b[0] as CanvasItem).queue_redraw()
-	if revealed: log_line("▶  Spiel läuft" if playing else "⏸  Pause – Zeit angehalten", "info")
+	if revealed: log_line("▶  Game running" if playing else "⏸  Paused – time stopped", "info")
 
 func log_line(text: String, kind := "info") -> void:
 	if _lines == null: return
@@ -519,8 +519,8 @@ func commit_sequence() -> void:
 	var prompt := "[color=#7ee787]claude@werkstatt[/color]:[color=#79c0ff]~/claude-dreaming[/color]$ "
 	var steps := [
 		["cmd", "git add levels/wip"],
-		["cmd", "git commit -m \"feat: Level fertig (wirklich)\""],
-		["out", "[main 7c1a2e9] feat: Level fertig (wirklich)\n 1 level changed, 1 Claude happy, 0 bugs (probably)"],
+		["cmd", "git commit -m \"feat: level finished (really)\""],
+		["out", "[main 7c1a2e9] feat: level finished (really)\n 1 level changed, 1 Claude happy, 0 bugs (probably)"],
 		["cmd", ""],
 	]
 	var shown := ""
@@ -669,20 +669,20 @@ func _primary(from_mouse: bool) -> void:
 			var w: Dictionary = e["wire"]
 			if level.wire_tool(w, tool == "col_add"):
 				_undo.append(func() -> bool: return level.wire_revert(w))
-				log_line(("+  CollisionShape3D hinzugefügt" if tool == "col_add" else "−  CollisionShape3D entfernt") + "  (%s)" % w["id"], "ok")
+				log_line(("+  CollisionShape3D added" if tool == "col_add" else "−  CollisionShape3D removed") + "  (%s)" % w["id"], "ok")
 				Sound.sfx(DIR + "audio/place.ogg", -4.0, 1.3)
 				_refresh()
 				return
-		_nope("Das geht hier nicht." if level.inv_count(tool) > 0 else "Keine %s mehr übrig." % NAMES[tool])
+		_nope("Can't do that here." if level.inv_count(tool) > 0 else "%s: none left." % NAMES[tool])
 		return
 	if level.can_place(tool, cell):
 		var p: Dictionary = level.place(tool, cell)
 		_undo.append(func() -> bool: level.remove(p); return true)
-		log_line("+  %s bei (%d, %d)" % [NAMES[tool], cell.x % 24, cell.y], "info")
+		log_line("+  %s at (%d, %d)" % [NAMES[tool], cell.x % 24, cell.y], "info")
 		Sound.sfx(DIR + "audio/place.ogg", -4.0, randf_range(0.95, 1.05))
 		_refresh()
 	elif level.inv_count(tool) <= 0:
-		_nope("Keine %s mehr übrig – Rechtsklick nimmt Teile zurück." % NAMES[tool])
+		_nope("%s: none left – right-click takes pieces back." % NAMES[tool])
 	else:
 		_nope("")
 
@@ -692,14 +692,14 @@ func _grab_panel(pn: Dictionary, cell: Vector2i, from_mouse: bool) -> void:
 	if bool(pn["placed"]): off = clampi(cell.x - from.x, 0, int(pn["w"]) - 1)
 	else: off = int(pn["w"]) / 2
 	if bool(pn["placed"]) and _claude_on(pn):
-		_nope("Claude steht da drauf.")
+		_nope("Claude is standing on it.")
 		return
 	_held = {"type": "panel", "ref": pn, "from": from, "off": off, "mouse": from_mouse}
 	level.panel_pick(pn)
 	Sound.sfx(DIR + "audio/pick.ogg", -6.0, 0.9)
 	if not flags.has("panel_log"):
 		flags["panel_log"] = true
-		log_line("W  UI-Element verlässt die Benutzeroberfläche", "warn")
+		log_line("W  UI element is leaving the user interface", "warn")
 
 func _claude_on(pn: Dictionary) -> bool:
 	var c: Vector2i = pn["cell"]
@@ -729,7 +729,7 @@ func _drop(cell: Vector2i) -> void:
 					return ok)
 			Sound.sfx(DIR + "audio/place.ogg", -4.0, 1.08)
 		else:
-			_nope("Da ist kein Platz.")
+			_nope("There's no room there.")
 	else:
 		var pn: Dictionary = h["ref"]
 		var left := cell - Vector2i(int(h["off"]), 0)
@@ -744,7 +744,7 @@ func _drop(cell: Vector2i) -> void:
 		else:
 			if not was_placed:
 				level.panel_drop(pn, from)
-			_nope("Da passt das nicht hin.")
+			_nope("That doesn't fit there.")
 	_refresh()
 
 func _secondary() -> void:
@@ -759,7 +759,7 @@ func _secondary() -> void:
 		var p: Dictionary = e["piece"]
 		level.remove(p)
 		_undo.append(func() -> bool: return level.restore(p))
-		log_line("−  %s zurück in den Werkzeugkasten" % NAMES[p["kind"]], "info")
+		log_line("−  %s back in the toolbox" % NAMES[p["kind"]], "info")
 		Sound.sfx(DIR + "audio/pick.ogg", -5.0, 0.85)
 		_refresh()
 	elif e.get("kind") == "wire" and (e["wire"] as Dictionary).has("changed"):
@@ -767,7 +767,7 @@ func _secondary() -> void:
 		var key: String = w["changed"]
 		level.wire_revert(w)
 		_undo.append(func() -> bool: return level.wire_tool(w, key == "col_add"))
-		log_line("↺  Kollision zurückgesetzt  (%s)" % w["id"], "info")
+		log_line("↺  Collision reset  (%s)" % w["id"], "info")
 		Sound.sfx(DIR + "audio/pick.ogg", -5.0, 0.85)
 		_refresh()
 
@@ -782,14 +782,14 @@ func _cycle(d: int) -> void:
 func _do_undo() -> void:
 	if not _can_edit() or not _held.is_empty(): return
 	if _undo.is_empty():
-		_nope("Nichts zum Rückgängigmachen.")
+		_nope("Nothing to undo.")
 		return
 	var f: Callable = _undo.pop_back()
 	if f.call():
-		log_line("↶  Rückgängig (Strg+Z – natürlich geht das)", "info")
+		log_line("↶  Undo (Ctrl+Z – of course that works)", "info")
 		Sound.sfx(DIR + "audio/pick.ogg", -6.0, 1.2)
 	else:
-		_nope("Rückgängig geht gerade nicht.")
+		_nope("Can't undo right now.")
 	_refresh()
 
 func _nope(why: String) -> void:

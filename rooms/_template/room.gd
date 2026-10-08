@@ -6,7 +6,7 @@ var _glow: Sprite2D
 
 func build() -> void:
 	_glow = add_glow(Vector2(128, 60), 22, Color(1.0, 0.85, 0.5, 0.35))
-	add_object("wall", Vector2(60, 170), "Wand", ["A fresh room.", "What will I put here?"])
+	add_object("wall", Vector2(60, 170), "Wall", ["A fresh room.", "What will I put here?"])
 
 func _process(delta: float) -> void:
 	t += delta

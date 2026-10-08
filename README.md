@@ -26,10 +26,10 @@ Shorts: [how to add your own dream](docs/trailer/short_explainer.mp4) · [“She
 3. Press **F5**.
 
 ### What happens
-1. **The title screen.** *Spielen* on the first start, *Weiter* after that. Settings,
+1. **The title screen.** *Play* on the first start, *Continue* after that. Settings,
    controls and credits are there too (and in the pause menu).
 2. **The intro: the whole film** (about 4 minutes) – the pixel opening, the dream in 3D,
-   waking up. Hold **Enter** to skip it, or press **Esc** → *Film überspringen*. You can
+   waking up. Hold **Enter** to skip it, or press **Esc** → *Skip the film*. You can
    watch it again from the title screen.
 3. **The attic (hub).** The film ends here and you play on. The dream hangs on the
    **easel** as a painting – step into it: the playable 3D dream – the garden with the glowing flower
@@ -37,7 +37,7 @@ Shorts: [how to add your own dream](docs/trailer/short_explainer.mp4) · [“She
    space and the warp. Walk left through the hallway into the **friends' rooms** – every
    contributor has one, with their dreams on the walls. Step into a painting with **E**:
    the camera dives into the picture and it comes alive. Finished dreams get a gold star.
-4. **Esc** opens the pause menu everywhere: *Zurück in den Dachboden* takes you from any
+4. **Esc** opens the pause menu everywhere: *Back to the attic* takes you from any
    dream back into the attic. Progress is saved automatically.
 
 Every level can have its own controls – a level tells you how it is played when you step
@@ -62,8 +62,8 @@ levels/
   <your_id>/        your dream ✨
 rooms/
   _template/        the smallest possible room
-  rusty/            "Rustys Sternwarte" – an observatory full of stars
-  werkstatt/        "Die Werkstatt" – where the game gets built (half of it is only sketched)
+  rusty/            "Rusty's Observatory" – an observatory full of stars
+  werkstatt/        "The Workshop" – where the game gets built (half of it is only sketched)
   <you>/            your room in the attic
 ```
 
@@ -87,7 +87,7 @@ rooms/
 
 The web build uses the smaller copies of the film in `assets/video_web/`
 (`bash tools/make_web_video.sh`), because itch.io allows at most 200 MB per file in a web
-game. It runs with the Compatibility renderer and starts with *Grafik: niedrig*. To put it
+game. It runs with the Compatibility renderer and starts with *Graphics: low*. To put it
 on itch.io: zip the *contents* of `Builds/Web` (index.html at the top of the zip), upload it
 as an HTML project and tick *This file will be played in the browser*.
 

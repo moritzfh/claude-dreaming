@@ -119,29 +119,29 @@ static func focus_first(box: Control) -> void:
 func _build_pause() -> void:
 	_box.add_child(heading("Pause"))
 	var ctx := context()
-	_box.add_child(button("Weiter", close))
+	_box.add_child(button("Resume", close))
 	if ctx == "film":
-		_box.add_child(button("Film überspringen", func():
+		_box.add_child(button("Skip the film", func():
 			close()
 			var v = get_tree().current_scene.get("video")
 			if v: v.skip()))
 	if ctx == "level":
-		_box.add_child(button("Zurück in den Dachboden", func():
+		_box.add_child(button("Back to the attic", func():
 			close()
 			(get_tree().current_scene as DreamLevel).back_to_hub()))
 	if ctx == "dream":
-		_box.add_child(button("Zurück in den Dachboden", func():
+		_box.add_child(button("Back to the attic", func():
 			close()
 			to_attic_from_dream()))
-	_box.add_child(button("Einstellungen", func(): show_page("settings")))
-	_box.add_child(button("Steuerung", func(): show_page("controls")))
-	_box.add_child(button("Hauptmenü", func():
+	_box.add_child(button("Settings", func(): show_page("settings")))
+	_box.add_child(button("Controls", func(): show_page("controls")))
+	_box.add_child(button("Main menu", func():
 		close()
 		GameState.save()
 		Sound.stop_all(0.6)
 		SceneSwap.discard()
 		get_tree().change_scene_to_file(TITLE_SCENE)))
-	_box.add_child(button("Spiel beenden", func():
+	_box.add_child(button("Quit game", func():
 		GameState.save()
 		get_tree().quit()))
 
@@ -174,55 +174,55 @@ func _dream_to_attic() -> void:
 
 # ------------------------------------------------------------------ shared panels
 func build_settings(box: VBoxContainer, back: Callable) -> void:
-	box.add_child(heading("Einstellungen"))
-	box.add_child(slider("Gesamtlautstärke", Settings.master, 0.0, 1.0, func(v: float):
+	box.add_child(heading("Settings"))
+	box.add_child(slider("Master volume", Settings.master, 0.0, 1.0, func(v: float):
 		Settings.master = v; _settings_changed()))
-	box.add_child(slider("Musik", Settings.music, 0.0, 1.0, func(v: float):
+	box.add_child(slider("Music", Settings.music, 0.0, 1.0, func(v: float):
 		Settings.music = v; _settings_changed()))
-	box.add_child(slider("Effekte", Settings.sfx, 0.0, 1.0, func(v: float):
+	box.add_child(slider("Sound effects", Settings.sfx, 0.0, 1.0, func(v: float):
 		Settings.sfx = v; _settings_changed()))
-	box.add_child(toggle("Vollbild", Settings.fullscreen, func(on: bool):
+	box.add_child(toggle("Fullscreen", Settings.fullscreen, func(on: bool):
 		Settings.fullscreen = on; _settings_changed()))
-	box.add_child(toggle("Grafik: niedrig (schneller)", Settings.low_quality, func(on: bool):
+	box.add_child(toggle("Graphics: low (faster)", Settings.low_quality, func(on: bool):
 		Settings.low_quality = on
 		_settings_changed()
 		var sc := get_tree().current_scene
 		if sc and sc.has_method("set_low_quality"): sc.set_low_quality(on)))
-	box.add_child(slider("Kamera-Tempo", Settings.mouse_sens, 0.3, 2.0, func(v: float):
+	box.add_child(slider("Camera speed", Settings.mouse_sens, 0.3, 2.0, func(v: float):
 		Settings.mouse_sens = v; _settings_changed()))
-	box.add_child(toggle("Kamera: oben/unten umkehren", Settings.invert_y, func(on: bool):
+	box.add_child(toggle("Camera: invert up/down", Settings.invert_y, func(on: bool):
 		Settings.invert_y = on; _settings_changed()))
-	var reset := button("Fortschritt zurücksetzen …", Callable())
+	var reset := button("Reset progress …", Callable())
 	reset.pressed.connect(func():
 		if not _reset_armed:
 			_reset_armed = true
-			reset.text = "Wirklich alles vergessen? Nochmal klicken."
+			reset.text = "Really forget everything? Click again."
 		else:
 			GameState.reset()
-			reset.text = "Zurückgesetzt – beim nächsten Start läuft der Film."
+			reset.text = "Reset – the film plays on the next start."
 			reset.disabled = true)
 	box.add_child(reset)
-	box.add_child(button("Zurück", back))
+	box.add_child(button("Back", back))
 
 func _settings_changed() -> void:
 	Settings.apply()
 	Settings.save_settings()
 
 func build_controls(box: VBoxContainer, back: Callable) -> void:
-	box.add_child(heading("Steuerung"))
+	box.add_child(heading("Controls"))
 	var rows := [
-		["WASD / linker Stick", "laufen"],
-		["Shift / B", "rennen"],
-		["Leertaste / A", "springen · in der Luft halten = gleiten"],
-		["", "Stardust: in der Luft nochmal = Doppelsprung,\nnach der Landung im Lauf = Dreifachsprung"],
-		["E / X", "benutzen · ins Gemälde steigen · Drehung"],
-		["Maus / rechter Stick", "Kamera"],
-		["Q / Y", "Gesicht wechseln"],
-		["R / Select", "zurück zum Checkpoint"],
-		["Enter halten", "Film überspringen"],
-		["Backspace halten", "ein Gemälde-Level verlassen"],
-		["Esc / Start", "Pause-Menü"],
-		["F1", "Entwickler-Menü (Sprung zu jedem Teil)"],
+		["WASD / left stick", "walk"],
+		["Shift / B", "run"],
+		["Space / A", "jump · hold it in the air = glide"],
+		["", "Stardust: again in the air = double jump,\nright after landing while running = triple jump"],
+		["E / X", "use · step into a painting · spin"],
+		["Mouse / right stick", "camera"],
+		["Q / Y", "change face"],
+		["R / Select", "back to the checkpoint"],
+		["Hold Enter", "skip the film"],
+		["Hold Backspace", "leave a painting level"],
+		["Esc / Start", "pause menu"],
+		["F1", "developer menu (jump to any part)"],
 	]
 	var grid := GridContainer.new()
 	grid.columns = 2
@@ -232,20 +232,20 @@ func build_controls(box: VBoxContainer, back: Callable) -> void:
 		grid.add_child(label(r[0], 24, GOLD, FONT_TITLE))
 		grid.add_child(label(r[1], 24, CREAM, FONT_ITALIC))
 	box.add_child(grid)
-	box.add_child(button("Zurück", back))
+	box.add_child(button("Back", back))
 
 func build_credits(box: VBoxContainer, back: Callable) -> void:
 	box.add_child(heading("Credits"))
-	var text := "Ein spielbarer Traum nach dem Kurzfilm „Claude Dreaming“\n(youtu.be/8BtSRB_LieE) – Film, Musik und die Figur Claude:\nder Ersteller des Videos, mit Claude. Verwendet mit freundlicher Erlaubnis.\n\nSpiel: Rusty & Claude · Godot Engine 4.7"
+	var text := "A playable dream based on the short film “Claude Dreaming”\n(youtu.be/8BtSRB_LieE) – film, music and the character Claude:\nby the creator of the video, with Claude. Used with kind permission.\n\nGame: Rusty & Claude · Godot Engine 4.7"
 	box.add_child(label(text, 24, CREAM, FONT_ITALIC, true))
 	var people: Array = []
 	for r in RoomRegistry.all(): people.append("%s – %s" % [r.owner, r.title])
-	for l in LevelRegistry.all(): people.append("„%s“ von %s" % [l.title, l.author])
+	for l in LevelRegistry.all(): people.append("“%s” by %s" % [l.title, l.author])
 	if people.size() > 0:
-		box.add_child(label("Zimmer und Träume der Community", 26, GOLD, FONT_TITLE, true))
+		box.add_child(label("Rooms and dreams from the community", 26, GOLD, FONT_TITLE, true))
 		box.add_child(label("\n".join(people), 22, CREAM, FONT_ITALIC, true))
-	box.add_child(label("Schriften: EB Garamond, Pixelify Sans, Fredoka (SIL OFL)\nInoffizielles Fan-Projekt – nicht mit Anthropic verbunden.", 20, Color(CREAM, 0.7), FONT_ITALIC, true))
-	box.add_child(button("Zurück", back))
+	box.add_child(label("Fonts: EB Garamond, Pixelify Sans, Fredoka (SIL OFL)\nUnofficial fan project – not affiliated with Anthropic.", 20, Color(CREAM, 0.7), FONT_ITALIC, true))
+	box.add_child(button("Back", back))
 
 # ------------------------------------------------------------------ widgets
 static func panel_style() -> StyleBoxFlat:
@@ -334,7 +334,7 @@ static func slider(text: String, value: float, lo: float, hi: float, changed: Ca
 	row.add_child(s)
 	return row
 
-## a setting that is on or off: the label and an "An"/"Aus" switch
+## a setting that is on or off: the label and an "On"/"Off" switch
 static func toggle(text: String, on: bool, changed: Callable) -> HBoxContainer:
 	var row := HBoxContainer.new()
 	row.add_theme_constant_override("separation", 16)
@@ -347,7 +347,7 @@ static func toggle(text: String, on: bool, changed: Callable) -> HBoxContainer:
 	b.custom_minimum_size = Vector2(130, 0)
 	b.add_theme_font_size_override("font_size", 26)
 	var paint := func(v: bool):
-		b.text = "✓  An" if v else "Aus"
+		b.text = "✓  On" if v else "Off"
 		b.add_theme_color_override("font_color", GOLD if v else Color(CREAM, 0.6))
 		b.add_theme_color_override("font_pressed_color", GOLD)
 		b.add_theme_color_override("font_hover_pressed_color", GOLD)

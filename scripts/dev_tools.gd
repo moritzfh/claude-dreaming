@@ -7,21 +7,21 @@
 extends CanvasLayer
 
 const STORY := [
-	["Titelbildschirm", "title", []],
-	["Intro: der ganze Film (erster Start)", "full", []],
-	["Film Teil 1 → 3D-Übergang", "test", ["--fromvideo"]],
-	["Gemälde-Kameraflug (Intro)", "dream", []],
-	["Garten (frei laufen)", "test", ["--nointro"]],
-	["Moment: Blume", "test", ["--beat=flower"]],
-	["Moment: Spiegelbecken", "test", ["--beat=pool"]],
-	["Kanalmauer / Wasserfall", "test", ["--waterfall"]],
-	["Raketenflug", "test", ["--flight"]],
-	["Weltall", "test", ["--space"]],
+	["Title screen", "title", []],
+	["Intro: the whole film (first start)", "full", []],
+	["Film part 1 → 3D transition", "test", ["--fromvideo"]],
+	["Painting camera flight (intro)", "dream", []],
+	["Garden (free roam)", "test", ["--nointro"]],
+	["Moment: the flower", "test", ["--beat=flower"]],
+	["Moment: the mirror pool", "test", ["--beat=pool"]],
+	["Canal wall / waterfall", "test", ["--waterfall"]],
+	["Rocket flight", "test", ["--flight"]],
+	["Space", "test", ["--space"]],
 	["Warp", "test", ["--warp"]],
-	["Pixel-Film Teil 2", "test", ["--videob"]],
-	["Hub: Übergang aus Film", "hub", ["--hubzoom"]],
-	["Hub: Atelier", "hub", []],
-	["Hub: Flur (Pinnwand, Gästebuch)", "hub", ["--hubpos=-120,178"]],
+	["Pixel film part 2", "test", ["--videob"]],
+	["Hub: transition from the film", "hub", ["--hubzoom"]],
+	["Hub: studio", "hub", []],
+	["Hub: hallway (pinboard, guestbook)", "hub", ["--hubpos=-120,178"]],
 ]
 const KEYS := ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "Q", "W", "E", "R", "T", "Z", "U", "I", "O", "P", "A", "S", "D", "F", "G", "H", "J", "K", "L"]
 const SPEEDS := [1.0, 3.0, 6.0]
@@ -91,11 +91,11 @@ func _build_menu() -> void:
 	jumps.clear()
 	for j in STORY: jumps.append([j[0], j[1], j[2], ""])
 	for r in RoomRegistry.all():
-		jumps.append(["Zimmer: " + r.title, "hub", ["--hubroom=" + str(r.get_meta("id"))], ""])
+		jumps.append(["Room: " + r.title, "hub", ["--hubroom=" + str(r.get_meta("id"))], ""])
 	for l in LevelRegistry.all():
-		jumps.append(["Galerie: " + l.title + ("  ★" if GameState.completed.has(l.get_meta("id")) else ""), "", [], l.scene])
+		jumps.append(["Gallery: " + l.title + ("  ★" if GameState.completed.has(l.get_meta("id")) else ""), "", [], l.scene])
 	var title := Label.new()
-	title.text = "DEV – Springen zu …   (↑↓ / Taste / Klick, Enter, Esc)"
+	title.text = "DEV – jump to …   (↑↓ / key / click, Enter, Esc)"
 	title.add_theme_font_size_override("font_size", 20)
 	title.add_theme_color_override("font_color", Color(1, 0.8, 0.6))
 	list.add_child(title)
@@ -110,7 +110,7 @@ func _build_menu() -> void:
 		b.mouse_entered.connect(func(): _sel = i; _refresh())
 		list.add_child(b)
 	var foot := Label.new()
-	foot.text = "F4 Tempo · F6 alle Farben · Enter halten: Film überspringen · Backspace halten: Level verlassen · F2 Wasserfall · F3 Qualität"
+	foot.text = "F4 speed · F6 all colors · hold Enter: skip the film · hold Backspace: leave a level · F2 waterfall · F3 quality"
 	foot.add_theme_font_size_override("font_size", 14)
 	foot.add_theme_color_override("font_color", Color(1, 1, 1, 0.6))
 	list.add_child(foot)
@@ -159,7 +159,7 @@ func _input(event: InputEvent) -> void:
 			_refresh()
 		KEY_F6:
 			for i in 12: GameState.found_orbs[i] = true
-			badge.text = "F1 Dev   alle Farben gesammelt (wirkt nach Neustart eines Abschnitts)"
+			badge.text = "F1 Dev   all colors collected (takes effect when a section restarts)"
 		_:
 			if not panel.visible: return
 			get_viewport().set_input_as_handled()

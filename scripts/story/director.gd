@@ -145,7 +145,7 @@ func begin(opts: Array) -> void:
 	if "--fromgallery" in opts:
 		_portal_in(portal_id)
 		if "--waterfall" in opts:
-			hud.show_hint("Lauf über die Mauer – und spring!", 6.0)
+			hud.show_hint("Run along the wall – and jump!", 6.0)
 	elif PaintingPortal.shot != null and state == S.INTRO:
 		# the easel: the attic's last frame melts into the painting alive, and
 		# the camera flight starts right away
@@ -298,7 +298,7 @@ func _enter_free(with_hint: bool) -> void:
 	player.make_current()
 	_garden_music(3.0)
 	if with_hint:
-		hud.show_hint("WASD laufen  ·  Shift rennen  ·  Leertaste springen (halten = gleiten)\nIrgendwo hier blüht etwas Besonderes …", 8.0)
+		hud.show_hint("WASD walk  ·  Shift run  ·  Space jump (hold = glide)\nSomething special is blooming somewhere around here …", 8.0)
 
 func _garden_music(fade: float) -> void:
 	if Sound.music_name() != "garden": Sound.music("garden", fade)
@@ -337,10 +337,10 @@ func _process_free() -> void:
 	var pp := player.global_position
 	var prompt := ""
 	if not flower_done and pp.distance_to(FLOWER_POS) < 2.2:
-		prompt = "E  ·  an der Blume riechen"
+		prompt = "E  ·  smell the flower"
 		if Input.is_action_just_pressed("interact"): _beat_flower()
 	elif not pool_done and pp.distance_to(POOL_APPROACH) < 3.0:
-		prompt = "E  ·  ins Wasser schauen"
+		prompt = "E  ·  look into the water"
 		if Input.is_action_just_pressed("interact"): _beat_pool()
 	if prompt != "" and not hud.prompt.visible: Sound.sfx("blip", -10.0)
 	hud.set_prompt(prompt if state == S.FREE else "")
@@ -408,7 +408,7 @@ func _beat_flower() -> void:
 	state = S.FREE
 	player.control_enabled = true
 	if not pool_done:
-		hud.show_hint("Das Spiegelbecken am Rand des Gartens …", 5.0)
+		hud.show_hint("The mirror pool at the edge of the garden …", 5.0)
 
 func _arrive_or_timeout(t: float) -> void:
 	var timer := main.get_tree().create_timer(t)
@@ -465,7 +465,7 @@ func _beat_pool() -> void:
 	_garden_music(4.0)
 	state = S.FREE
 	player.control_enabled = true
-	hud.show_hint("Lauf über die Kanalmauer zum Rand des Gartens – und spring!", 7.0)
+	hud.show_hint("Run along the canal wall to the edge of the garden – and jump!", 7.0)
 
 # ------------------------------------------------------------------ jump + flight
 func _jump_moment() -> void:
@@ -492,7 +492,7 @@ func _start_flight() -> void:
 	if Sound.music_name() != "film_flight": Sound.music("film_flight", 0.0)
 	Sound.loop("rocket_loop", -9.0, 0.6)
 	Sound.loop("wind_loop", -8.0, 1.5)
-	hud.show_hint("WASD / Stick: lenken  ·  sammle die Farben ohne Namen", 6.0)
+	hud.show_hint("WASD / stick: steer  ·  collect the colors without names", 6.0)
 
 func _on_flight_fading() -> void:
 	# burst through the cloud: white rays

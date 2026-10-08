@@ -334,7 +334,7 @@ func _build_decor(root: Node3D, ch: String, cell: Vector2i, look: String) -> voi
 				root.add_child(WB.mesh_node(head, WB.plain(col, Color(1, 1, 1)) if look == "painted" else WB.missing_mat(8.0), p + Vector3(0, 0.33, 0)))
 		"n":
 			_block_cells(cell, 2)
-			_sign(root, base + Vector3(0, 0, 0.1), "# TODO: Steuerung einbauen", look)
+			_sign(root, base + Vector3(0, 0, 0.1), "# TODO: add controls", look)
 		"d":
 			_block_cells(cell, 2)
 			root.add_child(_dummy(base))
@@ -372,7 +372,7 @@ func _tree(base: Vector3, look: String, rng: RandomNumberGenerator) -> Node3D:
 		var s := SphereMesh.new()
 		s.radius = 0.75; s.height = 1.5
 		n.add_child(WB.mesh_node(s, leaf, Vector3(0, 2.0, 0)))
-		var l := _label3d("TODO: Baum", MONO, 30, Color(0.15, 0.15, 0.18))
+		var l := _label3d("TODO: tree", MONO, 30, Color(0.15, 0.15, 0.18))
 		l.outline_modulate = Color(1, 1, 1, 0.8)
 		l.position = Vector3(0, 2.0, 0.8)
 		n.add_child(l)
@@ -448,8 +448,8 @@ func _signs(root: Node3D, i: int) -> void:
 		2:
 			notes = [["placeholder_final_v2_FINAL.tscn", MONO, 30, Color(0.18, 0.18, 0.2), Vector3(x0 + 10.5, 8.6, 0.4)]]
 		3:
-			notes = [["⚠ Knoten hat keine Kollision", MONO, 26, Color(1.0, 0.82, 0.3), Vector3(x0 + 8.0, 4.7, 0.9)],
-				["⚠ Knoten hat keine Kollision", MONO, 26, Color(1.0, 0.82, 0.3), Vector3(x0 + 14.0, 3.55 + 3.2, 0.9)],
+			notes = [["⚠ Node has no collision shape", MONO, 26, Color(1.0, 0.82, 0.3), Vector3(x0 + 8.0, 4.7, 0.9)],
+				["⚠ Node has no collision shape", MONO, 26, Color(1.0, 0.82, 0.3), Vector3(x0 + 14.0, 3.55 + 3.2, 0.9)],
 				["Node3D", MONO, 24, Color(0.85, 0.9, 1.0), Vector3(x0 + 3.2, 8.3, 0.4)]]
 			# the move gizmo of a lonely Node3D: red x, green y, blue z
 			var g := Node3D.new()
@@ -469,9 +469,9 @@ func _signs(root: Node3D, i: int) -> void:
 				elif d == Vector3.BACK: tn.rotation_degrees = Vector3(90, 0, 0)
 				g.add_child(tn)
 		4:
-			notes = [["hier fehlt noch alles …", SERIF, 44, Color(0.3, 0.3, 0.34), Vector3(x0 + 11.5, 6.8, 0.2)],
-				["Ziel? →", SERIF, 40, Color(0.3, 0.3, 0.34), Vector3(x0 + 18.3, 3.2, 0.2)],
-				["TODO: Brücke", SERIF, 36, Color(0.75, 0.3, 0.3), Vector3(x0 + 7.0, 0.2, 0.2)]]
+			notes = [["nothing here yet …", SERIF, 44, Color(0.3, 0.3, 0.34), Vector3(x0 + 11.5, 6.8, 0.2)],
+				["Goal? →", SERIF, 40, Color(0.3, 0.3, 0.34), Vector3(x0 + 18.3, 3.2, 0.2)],
+				["TODO: bridge", SERIF, 36, Color(0.75, 0.3, 0.3), Vector3(x0 + 7.0, 0.2, 0.2)]]
 	for nt in notes:
 		var l := _label3d(nt[0], nt[1], nt[2], nt[3])
 		l.position = nt[4]
@@ -867,7 +867,7 @@ func _bumped(what: Object) -> void:
 		if w["body"] == what and not _wall_said:
 			_wall_said = true
 			say("Ow! There's something here … an invisible wall?", 2.2)
-			editor.log_line("W  Unsichtbare Wand bei x = %d" % int(w["rect"].position.x), "warn")
+			editor.log_line("W  Invisible wall at x = %d" % int(w["rect"].position.x), "warn")
 
 func _boing(p: Dictionary) -> void:
 	Sound.sfx(DIR + "audio/boing.ogg", -3.0)
@@ -887,10 +887,10 @@ func _fall() -> void:
 	locked = true
 	falls += 1
 	editor.cancel_hold()
-	editor.log_line("E  Claude ist aus der Welt gefallen (y < %.1f)" % FALL_Y, "error")
+	editor.log_line("E  Claude fell out of the world (y < %.1f)" % FALL_Y, "error")
 	Sound.sfx(DIR + "audio/fall.ogg", -4.0)
 	await _wait(0.9)
-	editor.show_error("Claude ist aus der Welt gefallen.", "position.y < kill_y   (Stufe %d, Versuch %d)" % [stage + 1, falls])
+	editor.show_error("Claude fell out of the world.", "position.y < kill_y   (stage %d, attempt %d)" % [stage + 1, falls])
 	await editor.error_closed
 	_respawn()
 	_falling = false
@@ -911,7 +911,7 @@ func _tutorial() -> void:
 	await _wait(4.6)
 	editor.reveal()
 	say("Hey … you. Yes, you, with the mouse. Could you build me a bridge?", 3.0)
-	hint("Die Zeit steht still – du bist jetzt der Editor.\nKlick / E: Block setzen  ·  Rechtsklick / Shift: zurücknehmen\nLeertaste: Play / Pause  ·  R: Claude zum Start", 16.0)
+	hint("Time stands still – you are the editor now.\nClick / E: place a block  ·  Right-click / Shift: take it back\nSpace: play / pause  ·  R: Claude back to the start", 16.0)
 
 func _setup_stage(i: int) -> void:
 	stage = i
@@ -953,7 +953,7 @@ func _apply_look(i: int, dur: float) -> void:
 ## she arrived where the stage begins: time stops, she says something
 func _arrived() -> void:
 	_set_playing(false)
-	editor.log_line("■  Stufe %d: %s" % [stage + 1, ["fertig gemalt", "Texturen fehlen", "Grey-Box", "Drahtgitter", "Skizze"][stage]], "info")
+	editor.log_line("■  Stage %d: %s" % [stage + 1, ["fully painted", "missing textures", "grey box", "wireframe", "sketch"][stage]], "info")
 	if stage == ST.N - 1: return     # the subtitle says it
 	var lines: Array = ST.INTRO[stage]
 	if ST.HINTS[stage] != "": hint(ST.HINTS[stage], 14.0)
@@ -1013,7 +1013,7 @@ func _build_panel(id: String, w: int) -> Dictionary:
 			vis.add_child(l)
 			center = l.position
 		"hint":
-			var l := _label3d("Tipp: Zieh mich!", SERIF, 28, Color(1.0, 0.97, 0.92))
+			var l := _label3d("Tip: drag me!", SERIF, 28, Color(1.0, 0.97, 0.92))
 			l.outline_size = 8
 			l.outline_modulate = Color(0.12, 0.05, 0.18, 0.8)
 			l.position = Vector3(0, -0.22, 0.05)
@@ -1037,7 +1037,7 @@ func _build_panel(id: String, w: int) -> Dictionary:
 				sm.albedo_color = Color(0.22, 0.24, 0.29, 1.0)
 				vis.add_child(WB.mesh_node(slot, sm, Vector3(-1.8 + k * 1.2, -0.6, 0.03)))
 				mats.append([sm, 1.0])
-			var l := _label3d("(leer)", MONO, 22, Color(0.62, 0.65, 0.72))
+			var l := _label3d("(empty)", MONO, 22, Color(0.62, 0.65, 0.72))
 			l.outline_size = 0
 			l.render_priority = 2
 			l.position = Vector3(0, -0.6, 0.08)
@@ -1085,7 +1085,7 @@ func _show_panels() -> void:
 		k += 1
 	await _wait(6.0)
 	if not _subtitle_moved:
-		editor.log_line("Tipp: Die Oberfläche lässt sich anfassen – zieh sie unter Claude.", "warn")
+		editor.log_line("Tip: you can grab the interface – drag it under Claude.", "warn")
 
 func panel_at(cell: Vector2i) -> Dictionary:
 	var e: Dictionary = what_at(cell)
@@ -1169,7 +1169,7 @@ func _win() -> void:
 	claude.auto_target = null
 	claude.rig.mood = RobotRig.Mood.HAPPY
 	Sound.sfx(DIR + "audio/fanfare.ogg", -2.0)
-	editor.log_line("✔  Ziel erreicht", "ok")
+	editor.log_line("✔  Goal reached", "ok")
 	var tw := create_tween().set_parallel().set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	tw.tween_property(_goal, "scale", Vector3(1.8, 1.8, 1.8), 0.5)
 	tw.tween_property(_goal, "position:y", _goal_pos.y + 1.2, 0.6)

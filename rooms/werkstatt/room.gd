@@ -1,4 +1,4 @@
-## Die Werkstatt: what moves, glows and can be used in the workshop. The
+## The Workshop: what moves, glows and can be used in the workshop. The
 ## right half is only sketched until "Work in Progress" is finished – then
 ## room_done.png is laid over it. (The pictures come from
 ## source/make_room.py.)
@@ -75,17 +75,17 @@ func build() -> void:
 	], {"X": Color(0.08, 0.07, 0.12), "O": Color(1.0, 0.98, 0.94)}), Vector2(236, 70))
 	_cursor.visible = not done
 	# things Claude can use
-	add_object("todo", Vector2(36, 168), "TODO-Liste", _todo_lines, Callable(), 18, 0)
-	add_object("bugs", Vector2(143, 170), "Kiste mit Bugs", ["A box full of bugs.", "They're friendly. Mostly."], _release_bug, 12, 3)
+	add_object("todo", Vector2(36, 168), "To-do list", _todo_lines, Callable(), 18, 0)
+	add_object("bugs", Vector2(143, 170), "Box of bugs", ["A box full of bugs.", "They're friendly. Mostly."], _release_bug, 12, 3)
 	add_object("monitor", Vector2(168, 168), "Monitor", _monitor_lines, Callable(), 14, 0)
-	add_object("duck", Vector2(203, 170), "Gummiente", ["A rubber duck.", "You explain your bug to it, line by line …", "… and suddenly you see it yourself."], _squeak, 12, 1)
+	add_object("duck", Vector2(203, 170), "Rubber duck", ["A rubber duck.", "You explain your bug to it, line by line …", "… and suddenly you see it yourself."], _squeak, 12, 1)
 	if done:
-		add_object("blueprint", Vector2(233, 168), "Bauplan", ["A blueprint of … me?", "The antenna is a bit crooked. I like it."], Callable(), 12, 2)
-		add_object("shelf", Vector2(271, 170), "Bücherregal", ["Books about shaders, sound and pixel art.", "And one about knitting. Hm."], Callable(), 16, 0)
-		add_object("beanbag", Vector2(320, 172), "Sitzsack", ["A bean bag.", "This is where the other Claude thinks. Probably."], Callable(), 20, 1)
+		add_object("blueprint", Vector2(233, 168), "Blueprint", ["A blueprint of … me?", "The antenna is a bit crooked. I like it."], Callable(), 12, 2)
+		add_object("shelf", Vector2(271, 170), "Bookshelf", ["Books about shaders, sound and pixel art.", "And one about knitting. Hm."], Callable(), 16, 0)
+		add_object("beanbag", Vector2(320, 172), "Bean bag", ["A bean bag.", "This is where the other Claude thinks. Probably."], Callable(), 20, 1)
 	else:
-		add_object("cursor", Vector2(242, 170), "Mauszeiger", ["The cursor.", "It paints this room while nobody's looking.", "Slowly. Very slowly."], Callable(), 14, 3)
-		add_object("sketch", Vector2(302, 172), "Skizze", ["This part is only sketched.", "A bookshelf, a window, a bean bag …", "Maybe it gets finished when the painting next door is."], Callable(), 22, 0)
+		add_object("cursor", Vector2(242, 170), "Cursor", ["The cursor.", "It paints this room while nobody's looking.", "Slowly. Very slowly."], Callable(), 14, 3)
+		add_object("sketch", Vector2(302, 172), "Sketch", ["This part is only sketched.", "A bookshelf, a window, a bean bag …", "Maybe it gets finished when the painting next door is."], Callable(), 22, 0)
 
 func _todo_lines() -> Array:
 	var out := ["The to-do list.", "\"Give Claude arms.\" – done.", "\"Remove the stutter. Completely.\" – done."]

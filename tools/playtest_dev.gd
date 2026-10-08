@@ -26,13 +26,13 @@ func _process(d: float) -> void:
 	elif step == 2 and t > 7.0:
 		print("after jump: mode=", m.mode if m else "?", " state=", m.director.state if m and m.director else "?")
 		_key(KEY_F1); step = 3
-	elif step == 3 and t > 7.5: _key(KEY_W); step = 4   # Film Teil 2
+	elif step == 3 and t > 7.5: _key(KEY_W); step = 4   # Film part 2
 	elif step == 4 and t > 11.0:
 		print("after videob: video=", m.video != null, " music=", Sound.music_name(), " mode=", m.mode)
 		_key(KEY_F1); step = 5
-	elif step == 5 and t > 11.5: _key(KEY_T); step = 6   # Hub: Flur
+	elif step == 5 and t > 11.5: _key(KEY_T); step = 6   # Hub: hallway
 	elif step == 6 and t > 15.0:
-		print("galerie: mode=", m.mode, " hub state=", m.hub.state if m and m.hub else "?", " pos=", m.hub.pos if m and m.hub else "?")
+		print("gallery: mode=", m.mode, " hub state=", m.hub.state if m and m.hub else "?", " pos=", m.hub.pos if m and m.hub else "?")
 		_key(KEY_F4)
 		step = 7
 	elif step == 7 and t > 15.5:

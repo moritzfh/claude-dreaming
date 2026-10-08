@@ -1,6 +1,6 @@
 ## The title screen: the first dream, painted in oil and slowly breathing,
-## with the main menu. On the very first start "Spielen" plays the whole film
-## (then you are in the attic); later "Weiter" goes straight to the attic.
+## with the main menu. On the very first start "Play" plays the whole film
+## (then you are in the attic); later "Continue" goes straight to the attic.
 ## Start options on the command line (--hub, --dream, …) skip this screen.
 extends Control
 
@@ -25,7 +25,7 @@ static var _started := false
 
 func _ready() -> void:
 	InputSetup.setup()
-	# only right at start-up (not when coming back via "Hauptmenü"), and only
+	# only right at start-up (not when coming back via "Main menu"), and only
 	# if the game was started with its normal first scene (tests start others)
 	var first := not _started
 	_started = true
@@ -99,7 +99,7 @@ func _build() -> void:
 	title.add_theme_constant_override("shadow_offset_y", 6)
 	title.add_theme_constant_override("shadow_outline_size", 14)
 	col.add_child(title)
-	var sub := Menus.label("✦  ein spielbarer Traum", 44, GOLD, Menus.FONT_ITALIC)
+	var sub := Menus.label("✦  a playable dream", 44, GOLD, Menus.FONT_ITALIC)
 	sub.add_theme_color_override("font_shadow_color", Color(0.12, 0.04, 0.16, 0.6))
 	sub.add_theme_constant_override("shadow_outline_size", 10)
 	col.add_child(sub)
@@ -112,7 +112,7 @@ func _build() -> void:
 	_menu.size_flags_horizontal = Control.SIZE_SHRINK_BEGIN
 	col.add_child(_menu)
 
-	var foot := Menus.label("Inoffizielles Fan-Projekt nach dem Kurzfilm „Claude Dreaming“ · nicht mit Anthropic verbunden", 22, Color(CREAM, 0.7), Menus.FONT_ITALIC)
+	var foot := Menus.label("Unofficial fan project based on the short film “Claude Dreaming” · not affiliated with Anthropic", 22, Color(CREAM, 0.7), Menus.FONT_ITALIC)
 	foot.set_anchors_preset(Control.PRESET_BOTTOM_LEFT)
 	foot.grow_vertical = Control.GROW_DIRECTION_BEGIN
 	foot.offset_left = 152; foot.offset_bottom = -30
@@ -167,14 +167,14 @@ func _show_menu() -> void:
 	_col.visible = true
 	for c in _menu.get_children(): c.queue_free()
 	if not GameState.intro_seen:
-		_add("Spielen", func(): _start("full"))
+		_add("Play", func(): _start("full"))
 	else:
-		_add("Weiter", func(): _start("hub"))
-		_add("Intro-Film ansehen", func(): _start("full"))
-	_add("Einstellungen", func(): _show_page("settings"))
-	_add("Steuerung", func(): _show_page("controls"))
+		_add("Continue", func(): _start("hub"))
+		_add("Watch the intro film", func(): _start("full"))
+	_add("Settings", func(): _show_page("settings"))
+	_add("Controls", func(): _show_page("controls"))
 	_add("Credits", func(): _show_page("credits"))
-	_add("Beenden", func():
+	_add("Quit", func():
 		GameState.save()
 		get_tree().quit())
 	_focus_first.call_deferred(_menu)

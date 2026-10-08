@@ -173,7 +173,7 @@ func settle() -> void:
 	cam.look_at(_pos + cb * Vector3(1.0, 0.3, 0.0), Vector3.UP)
 	cam.fov = 58.0
 	_hint_shown = true
-	hud.show_hint("W halten / Leertaste: weiterfliegen", 30.0)
+	hud.show_hint("Hold W / Space: fly on", 30.0)
 
 func _space(delta: float) -> void:
 	t += delta
@@ -197,7 +197,7 @@ func _space(delta: float) -> void:
 	cam.fov = lerpf(cam.fov, 58.0, 1.0 - exp(-2.0 * delta))
 	if t > 5.0 and not _hint_shown:
 		_hint_shown = true
-		hud.show_hint("W halten / Leertaste: weiterfliegen", 30.0)
+		hud.show_hint("Hold W / Space: fly on", 30.0)
 	# when the film cue runs out, keep floating to our own space theme
 	if not _space_music_swapped and (Sound.music_name() != "film_flight" or Sound.music_pos() > 41.5):
 		_space_music_swapped = true

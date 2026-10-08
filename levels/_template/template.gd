@@ -20,7 +20,7 @@ func build() -> void:
 	c.step_kind = "grass"         # footstep sounds: "grass", "stone" or "wood"
 	# music: any .ogg inside your folder loops (or a built-in name like "garden")
 	Sound.music("garden", 1.0)
-	hint("WASD laufen · Leertaste springen · berühre den Stern", 6.0)
+	hint("WASD walk · Space jump · touch the star", 6.0)
 	say("A tiny island … and a star. Let's go!", 3.0)
 
 func _process(delta: float) -> void:

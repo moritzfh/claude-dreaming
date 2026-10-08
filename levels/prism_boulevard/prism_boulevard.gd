@@ -220,7 +220,7 @@ func _show_title() -> void:
 	t.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	root.add_child(t)
 	var s: Label = ui._label(40, Color(0.85, 0.9, 1.0), 10, ui.FONT_SB)
-	s.text = "Grand Prix · %d Runden · 8 Fahrer" % LAPS
+	s.text = "Grand Prix · %d laps · 8 racers" % LAPS
 	s.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	root.add_child(s)
 	ui.add_child(root)
@@ -238,7 +238,7 @@ func _show_title() -> void:
 	tw.tween_property(root, "modulate:a", 0.0, 0.5)
 	tw.tween_callback(func():
 		root.queue_free()
-		hint("Gas gibt Claude von selbst · A/D lenken · S bremsen\nLeertaste oder Shift halten + lenken = driften → Mini-Turbo\nIn der Luft Leertaste/E = Trick · R = zurück auf die Strecke", 9.0)
+		hint("Claude accelerates on her own · A/D steer · S brake\nHold Space or Shift + steer = drift → mini-turbo\nIn the air Space/E = trick · R = back on the track", 9.0)
 		_start_countdown())
 
 func _start_countdown() -> void:

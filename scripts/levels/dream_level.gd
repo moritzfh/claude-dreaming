@@ -196,7 +196,7 @@ func _glide(cam: Camera3D, target: Callable, dur: float, paint_from: float, pain
 		hud.set_painterly(lerpf(paint_from, paint_to, smoothstep(0.0, 1.0, u)))
 		await get_tree().process_frame
 
-## Fewer effects for slower computers (settings menu: "Grafik: niedrig"):
+## Fewer effects for slower computers (settings menu: "Graphics: low"):
 ## switches off the expensive screen effects of the level's environments.
 func set_low_quality(on: bool) -> void:
 	for n in find_children("*", "WorldEnvironment", true, false):
@@ -219,7 +219,7 @@ class _LeaveWatcher extends Node:
 	func _process(delta: float) -> void:
 		if Input.is_action_pressed("leave"):
 			hold += delta
-			level.hud.set_prompt("Zurück in den Dachboden …" if hold < 1.0 else "")
+			level.hud.set_prompt("Back to the attic …" if hold < 1.0 else "")
 			if hold >= 1.0 and not level._done:
 				level._done = true
 				level.back_to_hub()

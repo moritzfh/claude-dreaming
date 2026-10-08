@@ -1,8 +1,8 @@
 ## Rendered screenshots of the menus and the new transitions (needs a window /
 ## xvfb). -- --ms=<case> --ms_out=<dir>
-##   settings     title screen → settings page
+##   settings     title screen → settings page → credits
 ##   pause_hub    the pause menu in the attic
-##   leave_dream  the first dream → pause → "Zurück in den Dachboden"
+##   leave_dream  the first dream → pause → "Back to the attic"
 ##   cut_a6m1     the intro film's cut from the pixel part into the 3D part
 ##   cut_m8b      the cut from the 3D part to waking up
 ##   intro_end    the last seconds of the film → the attic
@@ -52,7 +52,7 @@ func _process(delta: float) -> void:
 	match case:
 		"settings":
 			if step == 0 and t > 1.5:
-				sc._show_page("settings"); step = 1
+				_shot("title"); sc._show_page("settings"); step = 1
 			if step == 1 and t > 3.0:
 				_shot("settings"); sc._show_page("credits"); step = 2
 			if step == 2 and t > 3.6:

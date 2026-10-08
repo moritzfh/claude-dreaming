@@ -55,14 +55,14 @@ const WALK_ROOM := [Vector2(-266, 160), Vector2(0, 158), Vector2(310, 158), Vect
 const BLOCKERS := [Rect2(14, 150, 86, 29), Rect2(124, 150, 30, 33), Rect2(154, 150, 78, 32)]
 ## id: [stand point, radius, prompt, portrait]
 const ROOM_SPOTS := {
-	"easel": [Vector2(192.0, 190.0), 26.0, "E  ·  Der erste Traum", 2],
-	"window": [Vector2(112.0, 166.0), 18.0, "E  ·  Fenster", 0],
+	"easel": [Vector2(192.0, 190.0), 26.0, "E  ·  The first dream", 2],
+	"window": [Vector2(112.0, 166.0), 18.0, "E  ·  Window", 0],
 	"monitor": [Vector2(58.0, 186.0), 22.0, "E  ·  Monitor", 0],
-	"sunflower": [Vector2(122.0, 164.0), 14.0, "E  ·  Sonnenblume", 1],
-	"drawings": [Vector2(268.0, 164.0), 22.0, "E  ·  Zeichnungen", 0],
-	"door": [Vector2(340.0, 188.0), 18.0, "E  ·  Tür", 0],
-	"pinboard": [Vector2(-105.0, 170.0), 24.0, "E  ·  Pinnwand", 1],
-	"guestbook": [Vector2(-193.0, 168.0), 18.0, "E  ·  Gästebuch", 0],
+	"sunflower": [Vector2(122.0, 164.0), 14.0, "E  ·  Sunflower", 1],
+	"drawings": [Vector2(268.0, 164.0), 22.0, "E  ·  Drawings", 0],
+	"door": [Vector2(340.0, 188.0), 18.0, "E  ·  Door", 0],
+	"pinboard": [Vector2(-105.0, 170.0), 24.0, "E  ·  Pinboard", 1],
+	"guestbook": [Vector2(-193.0, 168.0), 18.0, "E  ·  Guestbook", 0],
 }
 const ROOM_LINES := {
 	"window": ["The sun is going down.", "Somewhere out there, my sunflower is still collecting downvotes."],
@@ -250,9 +250,9 @@ func _build_gallery() -> void:
 			_hang(fr, loose[i])
 		else:
 			_hang(fr, null, "empty:%d" % i, ["This frame is still empty.", "Maybe the next dream goes here.", "Maybe yours?"])
-	spots["plant"] = [Vector2(left_edge + 24.0, 172.0), 16.0, "E  ·  Pflanze", 1]
+	spots["plant"] = [Vector2(left_edge + 24.0, 172.0), 16.0, "E  ·  Plant", 1]
 	lines["plant"] = ["A monstera.", "It grows towards the light. Same."]
-	spots["moon"] = [Vector2(left_edge + 54.0, 168.0), 16.0, "E  ·  Fenster", 0]
+	spots["moon"] = [Vector2(left_edge + 54.0, 168.0), 16.0, "E  ·  Window", 0]
 	lines["moon"] = ["On this side it's already night.", "Good time for dreaming."]
 	walk = PackedVector2Array(WALK_ROOM)
 	walk[0] = Vector2(left_edge + 10.0, 160.0)
@@ -280,7 +280,7 @@ func _hang(fr: Rect2, info: LevelInfo, empty_key := "", empty_lines: Array = [])
 	if info:
 		var id: String = info.get_meta("id")
 		var key := "lvl:" + id
-		var by := " (von %s)" % info.author if info.author != "" else ""
+		var by := " (by %s)" % info.author if info.author != "" else ""
 		spots[key] = [stand, 22.0, "E  ·  " + info.title + by, 2]
 		lines[key] = Array(info.claude_lines) if info.claude_lines.size() > 0 else ["Someone painted this dream for me.", "\"%s\" …" % info.title, "Let's take a look!"]
 		level_slots[key] = [info, fr]
@@ -291,7 +291,7 @@ func _hang(fr: Rect2, info: LevelInfo, empty_key := "", empty_lines: Array = [])
 			b.position = Vector2(fr.end.x - 6, fr.position.y - 3)
 			root.add_child(b)
 	else:
-		spots[empty_key] = [stand, 20.0, "E  ·  Leerer Rahmen", 3]
+		spots[empty_key] = [stand, 20.0, "E  ·  Empty frame", 3]
 		lines[empty_key] = empty_lines
 
 ## objects in friends' rooms (see DreamRoom.add_object)
@@ -537,7 +537,7 @@ func start(from_video: bool) -> void:
 	state = "intro"
 	_t = 0.0
 	Sound.music("hub", 2.5)
-	counter.text = "Farben ohne Namen  %d / 12" % GameState.found_orbs.size()
+	counter.text = "Colors without names  %d / 12" % GameState.found_orbs.size()
 	pos = Vector2(206.0, 196.0)
 	facing = -1.0
 	if GameState.hub_return != "" and spots.has("lvl:" + GameState.hub_return):
@@ -554,7 +554,7 @@ func start(from_video: bool) -> void:
 		_zoom_out_of(art, Vector2(clampf(pos.x, left_edge + VIEW.x * 0.5, ROOM_W - VIEW.x * 0.5), 108.0), 2.8)
 		return
 	if GameState.hub_return == "@easel":
-		# out of the first dream (pause menu) or "Weiter" on the title screen,
+		# out of the first dream (pause menu) or "Continue" on the title screen,
 		# which shows the same painting: zoom out of the canvas on the easel
 		GameState.hub_return = ""
 		GameState.painted = true
@@ -608,7 +608,7 @@ func _begin_play() -> void:
 	_show_hint_once()
 
 func _show_hint_once() -> void:
-	prompt.text = "WASD / Pfeiltasten: laufen   ·   E: ansehen   ·   links: die Zimmer der Freunde"
+	prompt.text = "WASD / arrow keys: walk   ·   E: look   ·   left: your friends' rooms"
 	await get_tree().create_timer(6.0).timeout
 	if prompt.text.begins_with("WASD"): prompt.text = ""
 

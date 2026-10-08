@@ -109,9 +109,9 @@ const INTRO := [
 
 const HINTS := [
 	"",
-	"Neu: Rampen.  Q / Mausrad / 1–4: Werkzeug wechseln.\nAn Wänden dreht Claude von selbst um.",
-	"Neu: die Feder – sie wirft Claude hoch in die Luft.\nEs gibt mehr als eine Lösung.",
-	"Klick auf ein Drahtgitter: Kollision hinzufügen.\nIm Pause-Modus siehst du alle Kollisionen – auch unsichtbare.",
+	"New: ramps.  Q / mouse wheel / 1–4: switch tools.\nClaude turns around at walls by herself.",
+	"New: the spring – it throws Claude high into the air.\nThere is more than one solution.",
+	"Click a wireframe: add collision.\nWhile paused you can see all collisions – even invisible ones.",
 	"",
 ]
 

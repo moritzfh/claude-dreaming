@@ -1,4 +1,4 @@
-## Rustys Sternwarte: what moves, glows and can be used in the observatory.
+## Rusty's Observatory: what moves, glows and can be used in the observatory.
 ## (The room's picture is room.png, made by source/make_room.py.)
 extends DreamRoom
 
@@ -51,11 +51,11 @@ func build() -> void:
 	add_child(_comet)
 	_build_mobile()
 	# things Claude can use
-	add_object("gramophone", Vector2(30, 168), "Grammophon", func() -> Array:
+	add_object("gramophone", Vector2(30, 168), "Gramophone", func() -> Array:
 		return ["Let the stars rest for a bit."] if _playing else ["A gramophone.", "It plays a waltz for the stars."], _toggle_music, 16, 1)
-	add_object("window", Vector2(88, 168), "Fenster", ["Planets, close enough to touch.", "Somewhere out there floats a candy planet."], Callable(), 22, 2)
-	add_object("telescope", Vector2(146, 170), "Teleskop", ["Let's see …", "A shooting star! Make a wish."], _launch_comet, 16, 3)
-	add_object("jar", Vector2(301, 168), "Sternsplitter", _jar_lines, Callable(), 12, 1)
+	add_object("window", Vector2(88, 168), "Window", ["Planets, close enough to touch.", "Somewhere out there floats a candy planet."], Callable(), 22, 2)
+	add_object("telescope", Vector2(146, 170), "Telescope", ["Let's see …", "A shooting star! Make a wish."], _launch_comet, 16, 3)
+	add_object("jar", Vector2(301, 168), "Star bits", _jar_lines, Callable(), 12, 1)
 
 func _build_mobile() -> void:
 	# a little hanging planet mobile, turning slowly (faster when Claude walks under it)

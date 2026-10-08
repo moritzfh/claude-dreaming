@@ -123,7 +123,7 @@ func set_prompt(text: String) -> void:
 	prompt.text = text
 
 func set_count(n: int, total: int) -> void:
-	counter.text = "Farben ohne Namen  %d / %d" % [n, total]
+	counter.text = "Colors without names  %d / %d" % [n, total]
 	var tw := create_tween()
 	counter.modulate.a = 1.0
 	counter.scale = Vector2.ONE
@@ -169,7 +169,7 @@ func show_end_card(found: int, total: int) -> void:
 	v.position = Vector2(-450, -200)
 	end_card.add_child(v)
 	var dark := Color(0.30, 0.20, 0.36)
-	for row in [["CLAUDE DREAMING", FONT_TITLE, 84], ["Farben ohne Namen gefunden: %d / %d" % [found, total], FONT_ITALIC, 36], ["Fortsetzung folgt …", FONT_ITALIC, 32], ["Enter / Start: nochmal träumen", FONT_ITALIC, 26]]:
+	for row in [["CLAUDE DREAMING", FONT_TITLE, 84], ["Colors without names found: %d / %d" % [found, total], FONT_ITALIC, 36], ["To be continued …", FONT_ITALIC, 32], ["Enter / Start: dream again", FONT_ITALIC, 26]]:
 		var l := Label.new()
 		l.text = row[0]
 		l.add_theme_font_override("font", row[1])

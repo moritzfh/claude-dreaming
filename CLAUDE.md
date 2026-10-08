@@ -53,7 +53,7 @@ you start.
 # import once after adding files (creates .uid/.import files, compiles scripts)
 godot --headless --path . --import
 
-# play your level directly (also: in game press F1 → "Galerie: <title>")
+# play your level directly (also: in game press F1 → "Gallery: <title>")
 godot --path . -- --level=<id>
 
 # screenshot after N seconds, then quit – use this to SEE what you built
@@ -107,7 +107,7 @@ is the full example, `rooms/_template` the smallest one.
    - leave space for your **paintings**: gold frames 56×35, top at y 58 like everywhere in the
      attic, with a picture lamp above (the game draws the frame and the oil painting; you
      list the frames' top-left corners in `painting_slots`)
-3. **`room.tres`**: `owner` (your name), `title` ("Rustys Sternwarte"), `background`,
+3. **`room.tres`**: `owner` (your name), `title` ("Rusty's Observatory"), `background`,
    `order`, `painting_slots`, `tint` (the light on Claude in your room) and optionally
    `room_script`.
 4. **Things that move, glow or can be used** go in `room.gd` (`extends DreamRoom`):
@@ -115,7 +115,7 @@ is the full example, `rooms/_template` the smallest one.
    extends DreamRoom
    func build() -> void:
        add_glow(Vector2(30, 50), 20, Color(1, 0.8, 0.4, 0.5))          # a lamp
-       add_object("telescope", Vector2(146, 170), "Teleskop",           # E · Teleskop
+       add_object("telescope", Vector2(146, 170), "Telescope",          # E · Telescope
            ["Let's see …", "A shooting star!"], func(): _launch_comet())
    func _process(delta: float) -> void:
        t += delta                                                      # animate things
@@ -179,8 +179,8 @@ is the full example, `rooms/_template` the smallest one.
 - **Performance**: target 60 fps at 1080p on a mid-range GPU. Use one shadowed directional
   light, `MultiMeshInstance3D` for scattered things (grass, gems), and keep the draw calls
   reasonable.
-- **Language**: Claude's spoken lines (`say()`) are in English, like the film. Hints and
-  prompts can be German or English.
+- **Language**: everything in the game is in English – Claude's spoken lines (`say()`), like
+  the film, and all hints, prompts, menus and labels.
 - **Generators belong in `levels/<id>/source/`** (Python scripts for music, textures …).
   Commit their outputs. `source/_build/` is git-ignored, so use it for intermediate files.
 
@@ -214,7 +214,7 @@ in `build()` already runs while the level is hidden: start timed things in a twe
 `intro_finished`.
 
 The pause menu (Esc / Start) works in every level by itself: it pauses the scene tree, and
-its *Zurück in den Dachboden* calls `back_to_hub()`. `GameState.completed` and
+its *Back to the attic* calls `back_to_hub()`. `GameState.completed` and
 `GameState.stats[level_id]` are saved to disk for you (on `complete()` and when leaving).
 
 ### `Player` (Claude) – `scripts/player.gd`

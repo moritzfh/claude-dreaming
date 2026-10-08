@@ -1,5 +1,5 @@
 ## Clicks through the title screen and the pause menu everywhere:
-## title → intro film (pause, skip) → attic → main menu → "Weiter" →
+## title → intro film (pause, skip) → attic → main menu → "Continue" →
 ## the first dream → back to the attic → a gallery level → back.
 extends Node
 var t := 0.0
@@ -51,7 +51,7 @@ func _process(d: float) -> void:
 		0:
 			if sc and sc.name == "Title" and since > 2.5:
 				print("title buttons: ", _buttons(sc))
-				_press(sc, "Spielen"); _next(1)
+				_press(sc, "Play"); _next(1)
 		1:
 			if sc and sc.name == "Main" and since > 4.0:
 				print("film: context=", Menus.context(), " music=", Sound.music_name(), " pos=%.2f" % Sound.music_pos())
@@ -62,14 +62,14 @@ func _process(d: float) -> void:
 			if since > 1.5:
 				var v := sc.video._players[sc.video._active] as VideoStreamPlayer
 				print("paused=", get_tree().paused, " menu=", _buttons(Menus), " video moved %.2f s, music moved %.2f s while paused" % [v.stream_position - _vpos, Sound.music_pos() - _mpos])
-				_press(Menus, "Einstellungen"); _next(3)
+				_press(Menus, "Settings"); _next(3)
 		3:
 			if since > 0.5:
 				print("settings page: ", _buttons(Menus).size(), " buttons")
 				_esc(); _next(4)   # back to the pause page
 		4:
 			if since > 0.5:
-				_press(Menus, "Film überspringen"); _next(5)
+				_press(Menus, "Skip the film"); _next(5)
 		5:
 			if since > 5.0:
 				print("after skip: context=", Menus.context(), " intro_seen=", GameState.intro_seen, " save=", GameState.has_save(), " hub state=", sc.hub.state, " music=", Sound.music_name())
@@ -77,14 +77,14 @@ func _process(d: float) -> void:
 		6:
 			if since > 0.5:
 				print("hub pause menu: ", _buttons(Menus))
-				_press(Menus, "Hauptmenü"); _next(7)
+				_press(Menus, "Main menu"); _next(7)
 		7:
 			if sc and sc.name == "Title" and since > 2.5:
 				print("title buttons now: ", _buttons(sc))
-				_press(sc, "Weiter"); _next(8)
+				_press(sc, "Continue"); _next(8)
 		8:
 			if sc and sc.name == "Main" and since > 3.0:
-				print("weiter: context=", Menus.context(), " hub state=", sc.hub.state, " pos=", sc.hub.pos)
+				print("continue: context=", Menus.context(), " hub state=", sc.hub.state, " pos=", sc.hub.pos)
 				GameState.next_mode = "dream"
 				get_tree().change_scene_to_file("res://scenes/main.tscn")
 				_next(9)
@@ -95,7 +95,7 @@ func _process(d: float) -> void:
 		10:
 			if since > 0.5:
 				print("dream pause menu: ", _buttons(Menus))
-				_press(Menus, "Zurück in den Dachboden"); _next(11)
+				_press(Menus, "Back to the attic"); _next(11)
 		11:
 			if sc and sc.name == "Main" and sc.director == null and since > 5.0:
 				print("back from dream: context=", Menus.context(), " hub state=", sc.hub.state, " pos=", sc.hub.pos, " zoom=%.2f" % sc.hub.zoom, " painted=", GameState.painted, " easel a=", sc.hub.painting.modulate.a)
@@ -108,7 +108,7 @@ func _process(d: float) -> void:
 		13:
 			if since > 0.5:
 				print("level pause menu: ", _buttons(Menus))
-				_press(Menus, "Zurück in den Dachboden"); _next(14)
+				_press(Menus, "Back to the attic"); _next(14)
 		14:
 			if sc and sc.name == "Main" and since > 4.0:
 				print("back from level: context=", Menus.context(), " hub state=", sc.hub.state, " pos=", sc.hub.pos)

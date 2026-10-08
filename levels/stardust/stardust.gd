@@ -853,7 +853,7 @@ func _show_title() -> void:
 	t.position.y -= 60
 	_title.add_child(t)
 	var s := Label.new()
-	s.text = "Sammle Sternsplitter · finde den Traumstern"
+	s.text = "Collect star bits · find the Dream Star"
 	s.add_theme_font_override("font", FONT)
 	s.add_theme_font_size_override("font_size", 38)
 	s.add_theme_color_override("font_color", Color(0.85, 0.9, 1.0))
@@ -870,7 +870,7 @@ func _show_title() -> void:
 	tw.tween_property(_title, "modulate:a", 1.0, 0.8)
 	tw.tween_interval(2.6)
 	tw.tween_property(_title, "modulate:a", 0.0, 1.0)
-	tw.tween_callback(func(): hint("Leertaste: springen · in der Luft nochmal = Doppelsprung\nIm Laufen direkt nach der Landung springen = Dreifachsprung · E: Drehung", 8.0))
+	tw.tween_callback(func(): hint("Space: jump · again in the air = double jump\nJump right after landing while running = triple jump · E: spin", 8.0))
 
 # ------------------------------------------------------------------ update
 func _process(delta: float) -> void:
@@ -907,7 +907,7 @@ func _process(delta: float) -> void:
 		n.scale = Vector3.ONE * (1.0 + sin(_t * 3.0) * 0.04)
 		if not _flying and n.position.distance_to(cp) < 2.2:
 			_prompt_star = ls
-	hud.set_prompt("Leertaste / E: abheben!" if _prompt_star != null else "")
+	hud.set_prompt("Space / E: lift off!" if _prompt_star != null else "")
 	if _prompt_star != null and (Input.is_action_just_pressed("jump") or Input.is_action_just_pressed("interact")):
 		_launch(_prompt_star)
 	# springs
@@ -1016,7 +1016,7 @@ func _form_launch_star(from: Vector3) -> void:
 	for l in launch_stars:
 		if l["node"] == ls: l["active"] = true
 	StoryProps.burst(self, target, Color(1.0, 0.8, 0.4))
-	hint("Ein Startstern ist erschienen!", 4.0)
+	hint("A launch star appeared!", 4.0)
 
 func _on_spin() -> void:
 	# spinning also grabs star bits a bit further away
@@ -1099,7 +1099,7 @@ func _launch(ls: Dictionary) -> void:
 	_flying = false
 	if ls["area"] == 1: say("Whee!", 1.6)
 	if ls["area"] == 2:
-		hint("Kleiner Planet! Lauf einmal ganz herum – finde die 5 Sternenteile.", 6.0)
+		hint("A tiny planet! Run all the way around it – find the 5 star pieces.", 6.0)
 	if ls["area"] == 3: say("There it is …", 2.2)
 
 ## Rainbow star dust that Claude leaves behind while flying.
@@ -1176,7 +1176,7 @@ func _win() -> void:
 	cine.global_transform = claude.camera.global_transform
 	cine.current = true
 	var big := Label.new()
-	big.text = "TRAUMSTERN!"
+	big.text = "DREAM STAR!"
 	big.add_theme_font_override("font", FONT)
 	big.add_theme_font_size_override("font_size", 130)
 	big.add_theme_color_override("font_color", Color(1.0, 0.9, 0.45))

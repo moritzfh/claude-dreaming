@@ -17,7 +17,7 @@ play.
 3. Tell Claude what you want, for example:
    > Make a new level for the Community Dreams gallery: Claude races a paper boat down a
    > rainy street, collecting raindrops, finish line at a storm drain. Follow CLAUDE.md.
-4. Play it (`godot --path . -- --level=<id>`, or **F1** in game → *Galerie: …*), give
+4. Play it (`godot --path . -- --level=<id>`, or **F1** in game → *Gallery: …*), give
    feedback, and iterate. Ask Claude to look at its own screenshots. It helps a lot.
 5. Make the painting (`levels/<id>/painting.png`, 1280×720, no UI). Then run the checks:
    ```bash

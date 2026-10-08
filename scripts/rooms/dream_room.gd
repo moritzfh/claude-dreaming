@@ -6,7 +6,7 @@
 ## top; the wall ends at y = 145, the floor Claude walks on is y = 160..212.
 ##
 ##   func build() -> void:
-##       add_object("lamp", Vector2(120, 170), "Lampe", ["A lamp."], func(): _lamp_on = not _lamp_on)
+##       add_object("lamp", Vector2(120, 170), "Lamp", ["A lamp."], func(): _lamp_on = not _lamp_on)
 class_name DreamRoom
 extends Node2D
 
