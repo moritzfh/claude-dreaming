@@ -2,7 +2,7 @@
 ##   F1  – jump menu: start any part of the game or any gallery level directly
 ##   F4  – fast forward (1x / 3x / 6x), handy for cutscenes
 ##   F6  – collect all "colours without names"
-##   Enter (hold) skips the films, F2 = waterfall teleport, F3 = low quality,
+##   Space / Enter (hold) skips the films, F2 = waterfall teleport, F3 = low quality,
 ##   Backspace (hold) leaves a gallery level
 extends CanvasLayer
 
@@ -110,7 +110,7 @@ func _build_menu() -> void:
 		b.mouse_entered.connect(func(): _sel = i; _refresh())
 		list.add_child(b)
 	var foot := Label.new()
-	foot.text = "F4 speed · F6 all colors · hold Enter: skip the film · hold Backspace: leave a level · F2 waterfall · F3 quality"
+	foot.text = "F4 speed · F6 all colors · hold Space: skip the film · hold Backspace: leave a level · F2 waterfall · F3 quality"
 	foot.add_theme_font_size_override("font_size", 14)
 	foot.add_theme_color_override("font_color", Color(1, 1, 1, 0.6))
 	list.add_child(foot)

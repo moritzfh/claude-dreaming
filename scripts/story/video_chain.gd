@@ -1,8 +1,11 @@
 ## Plays a film segment that was split into several Theora chunks, with the
-## soundtrack as a separate continuous stream. Skippable (hold Enter, or the
-## pause menu). Pauses with the game.
+## soundtrack as a separate continuous stream. Skippable (hold Space / Enter /
+## A / the mouse button – see skip_prompt.gd – or the pause menu). Pauses with
+## the game.
 class_name VideoChain
 extends CanvasLayer
+
+const SkipPrompt := preload("res://scripts/ui/skip_prompt.gd")
 
 signal finished(last_frame: Texture2D)
 
@@ -21,8 +24,7 @@ var _active := 0
 var _bg: ColorRect
 var _box: AspectRatioContainer
 var _done := false
-var _skip_hold := 0.0
-var _hint: Label
+var _prompt: Control
 var _switching := false
 
 func _ready() -> void:
@@ -44,16 +46,9 @@ func _ready() -> void:
 		_box.add_child(v)
 		v.finished.connect(_on_chunk_finished.bind(i))
 		_players.append(v)
-	_hint = Label.new()
-	_hint.text = "Hold Enter: skip  ·  Esc: menu"
-	_hint.add_theme_font_override("font", load("res://assets/fonts/EBGaramond-Italic.woff2"))
-	_hint.add_theme_font_size_override("font_size", 22)
-	_hint.add_theme_color_override("font_color", Color(1, 0.95, 0.85, 0.55))
-	_hint.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
-	_hint.offset_left = -560; _hint.offset_top = -50; _hint.offset_right = -24; _hint.offset_bottom = -16
-	_hint.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	_hint.modulate.a = 0.0
-	add_child(_hint)
+	_prompt = SkipPrompt.new()
+	add_child(_prompt)
+	_prompt.done.connect(skip)
 
 ## clen: the length of each chunk, one number for all or an Array with one per chunk
 func play_chain(paths: Array, music: String, from := 0.0, clen: Variant = 15.25) -> void:
@@ -75,7 +70,6 @@ func play_chain(paths: Array, music: String, from := 0.0, clen: Variant = 15.25)
 	_players[0].play()
 	if files.size() > 1: _load(1, files[1])
 	if music != "": Sound.music(music, 0.0, from)
-	create_tween().tween_property(_hint, "modulate:a", 1.0, 1.0).set_delay(2.0)
 
 func _load(slot: int, path: String) -> void:
 	_players[slot].stream = load(path)
@@ -118,12 +112,6 @@ func _process(delta: float) -> void:
 			_next_chunk()
 		elif _idx == files.size() - 1 and _clock >= float(_ends[_idx]) + 0.3:
 			_finish()   # in case the last chunk never says it is finished
-	if Input.is_action_pressed("skip"):
-		_skip_hold += delta
-		if _skip_hold > 0.6:
-			skip()
-	else:
-		_skip_hold = 0.0
 
 func skip() -> void:
 	if _done: return
@@ -133,6 +121,7 @@ func skip() -> void:
 func _finish(was_skipped := false) -> void:
 	_done = true
 	skipped = was_skipped
+	_prompt.dismiss()
 	var tex: Texture2D = null
 	var v := _players[_active]
 	if not was_skipped and v.get_video_texture():

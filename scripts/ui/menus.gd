@@ -219,7 +219,7 @@ func build_controls(box: VBoxContainer, back: Callable) -> void:
 		["Mouse / right stick", "camera"],
 		["Q / Y", "change face"],
 		["R / Select", "back to the checkpoint"],
-		["Hold Enter", "skip the film"],
+		["Hold Space / Enter / A", "skip the film"],
 		["Hold Backspace", "leave a painting level"],
 		["Esc / Start", "pause menu"],
 		["F1", "developer menu (jump to any part)"],
