@@ -9,6 +9,8 @@ const T_FELT := preload("res://levels/plush_desk/textures/felt.png")
 const T_KNIT := preload("res://levels/plush_desk/textures/knit.png")
 const T_MOTTLE := preload("res://levels/plush_desk/textures/mottle.png")
 const FONT := preload("res://levels/plush_desk/fonts/Fredoka-Bold.woff2")
+const FUZZ := preload("res://levels/plush_desk/shaders/fuzz.gdshader")
+const FUZZ_SHELLS := 4
 
 const RING_Y := 11.0
 const RING_R := 5.2
@@ -104,8 +106,21 @@ func _add_planet(mesh: Mesh, tag_mesh: Mesh, title: String, id: String, r: float
 	m.set_shader_parameter("sheen_color", (cols[0] as Color).lerp(Color.WHITE, 0.6))
 	m.set_shader_parameter("stitch_count", 16.0)
 	m.set_shader_parameter("stitch_inset", 0.035)
-	m.set_shader_parameter("stitch_width", 0.0065)
+	m.set_shader_parameter("stitch_width", 0.009)
 	m.set_shader_parameter("thread_color", thread)
+	# a few shells of fuzz on top (plush halo at the silhouette)
+	var prev: Material = m
+	for i in FUZZ_SHELLS:
+		var f := ShaderMaterial.new()
+		f.shader = FUZZ
+		for key in ["albedo", "panel_b", "panel_c", "use_panels", "fibre_tex", "sheen_color"]:
+			f.set_shader_parameter(key, m.get_shader_parameter(key))
+		f.set_shader_parameter("mottle_tex", T_MOTTLE)
+		f.set_shader_parameter("shell", float(i + 1) / FUZZ_SHELLS)
+		f.set_shader_parameter("fuzz_len", 0.035)
+		f.set_shader_parameter("density", 5.0)
+		prev.next_pass = f
+		prev = f
 	body.material_override = m
 	body.rotation = Vector3(0.5, a * 1.7, 0.3)
 	pivot.add_child(body)

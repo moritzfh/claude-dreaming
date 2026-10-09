@@ -33,7 +33,8 @@ void vertex() {
 	float ext = max(w - 1.0, 0.0) * pitch * 0.5;
 	VERTEX.x += clamp(o.x / 0.03, -1.0, 1.0) * ext;
 	VERTEX.z += clamp(o.z / 0.03, -1.0, 1.0) * dz * pitch * 0.5;
-	v_label_uv = vec2(o.x, o.z) / label_size + 0.5;
+	// legends sit in the middle of the (stretched) key and keep their shape
+	v_label_uv = vec2(VERTEX.x, VERTEX.z) / label_size + 0.5;
 	v_label_cell = INSTANCE_CUSTOM.g;
 	v_glow = INSTANCE_CUSTOM.b;
 	v_alt = INSTANCE_CUSTOM.a;

@@ -619,7 +619,7 @@ func _look(from: Vector3, at: Vector3) -> Transform3D:
 func _plug_shot(t: float, tall: bool) -> Transform3D:
 	var P := _port_world()
 	var side_off := Vector3(1.5, 1.6, 4.6) if tall else Vector3(2.9, 1.5, 4.5)
-	var close_off := Vector3(0.9, 1.05, 2.7) if tall else Vector3(1.6, 0.95, 2.6)
+	var close_off := Vector3(0.7, 0.95, 2.2) if tall else Vector3(1.5, 0.95, 2.5)
 	var c := claude.global_position + Vector3(0, 0.6, 0)
 	if t < 1.62:
 		var at := (P + Vector3(-0.3, 1.2, 0.2)).lerp(c, 0.45)
