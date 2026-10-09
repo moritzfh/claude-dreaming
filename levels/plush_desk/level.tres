@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="LevelInfo" format=3]
+
+[ext_resource type="Script" path="res://scripts/levels/level_info.gd" id="1"]
+[ext_resource type="Texture2D" path="res://levels/plush_desk/painting.png" id="2"]
+
+[resource]
+script = ExtResource("1")
+title = "The Plush Desk"
+author = "Rusty & Claude"
+description = "A desk sewn from felt and quilts. Plug cardboard Claude into the plush keyboard and pick a world."
+painting = ExtResource("2")
+scene = "res://levels/plush_desk/plush_desk.tscn"
+order = 30
+room = "rusty"
+claude_lines = PackedStringArray("Everything in there is soft. Except me.", "Is that … a keyboard made of felt?", "I could plug myself in there.")
+painting_cam_pos = Vector3(-11, 4.3, 11.5)
+painting_cam_look = Vector3(-1.6, 3.1, -3)
+painting_cam_fov = 60.0
