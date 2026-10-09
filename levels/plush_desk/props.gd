@@ -203,8 +203,9 @@ func build_lamp(base_pos: Vector3, target: Vector3) -> SpotLight3D:
 	shade.look_at_from_position(head, target, Vector3.UP)
 	var cone := MeshInstance3D.new()
 	var co := CylinderMesh.new()
-	co.top_radius = 0.45; co.bottom_radius = 1.5; co.height = 1.9; co.radial_segments = 32
-	co.cap_bottom = false
+	# the wide, open mouth faces the desk (-Z after the rotation), the narrow end the arm
+	co.top_radius = 1.5; co.bottom_radius = 0.45; co.height = 1.9; co.radial_segments = 32
+	co.cap_top = false
 	cone.mesh = co
 	cone.rotation = Vector3(-PI * 0.5, 0, 0)
 	cone.position = Vector3(0, 0, -0.75)
@@ -227,7 +228,7 @@ func build_lamp(base_pos: Vector3, target: Vector3) -> SpotLight3D:
 	var bulb := MeshInstance3D.new()
 	var bs := SphereMesh.new(); bs.radius = 0.42; bs.height = 0.84
 	bulb.mesh = bs
-	bulb.position = Vector3(0, 0, -1.25)
+	bulb.position = Vector3(0, 0, -1.2)
 	lamp_bulb = StandardMaterial3D.new()
 	lamp_bulb.albedo_color = Color(1.0, 0.92, 0.75)
 	lamp_bulb.emission_enabled = true
@@ -237,7 +238,7 @@ func build_lamp(base_pos: Vector3, target: Vector3) -> SpotLight3D:
 	bulb.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	shade.add_child(bulb)
 	lamp_light = SpotLight3D.new()
-	lamp_light.position = Vector3(0, 0, -1.6)
+	lamp_light.position = Vector3(0, 0, -1.55)
 	lamp_light.light_color = Color(1.0, 0.77, 0.52)
 	lamp_light.light_energy = 14.0
 	lamp_light.spot_range = 34.0

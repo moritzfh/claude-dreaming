@@ -4,6 +4,7 @@
 extends Node3D
 
 const FABRIC := preload("res://levels/plush_desk/shaders/fabric.gdshader")
+const Finale := preload("res://levels/plush_desk/story/sec_finale.gd")
 const Geo := preload("res://levels/plush_desk/geo.gd")
 const T_FELT := preload("res://levels/plush_desk/textures/felt.png")
 const T_KNIT := preload("res://levels/plush_desk/textures/knit.png")
@@ -185,6 +186,36 @@ func _add_planet(mesh: Mesh, tag_mesh: Mesh, title: String, id: String, r: float
 	tag.add_child(lab)
 	planets.append({"id": id, "title": title, "pivot": pivot, "body": body, "tag": tag, "r": r,
 		"drop": drop, "base_a": a, "swing": Vector2.ZERO, "swing_v": Vector2.ZERO, "phase": randf() * TAU})
+
+## the best result of a world, sewn under its name tag: the score and the badge
+func set_result(id: String, score: int, medal: String) -> void:
+	for p in planets:
+		if p.id != id:
+			continue
+		var tag: Node3D = p.tag
+		var old := tag.get_node_or_null("Result")
+		if old:
+			old.free()
+		var res := Node3D.new()
+		res.name = "Result"
+		res.position = Vector3(0, -0.62, 0.02)
+		tag.add_child(res)
+		var lab := Label3D.new()
+		lab.text = "%d / 100" % score
+		lab.font = FONT
+		lab.font_size = 64
+		lab.pixel_size = 0.0042
+		lab.modulate = Color(0.3, 0.2, 0.32)
+		lab.outline_size = 14
+		lab.outline_modulate = Color(0.98, 0.94, 0.86)
+		lab.shaded = true
+		lab.position = Vector3(0.12, 0, 0.08)
+		res.add_child(lab)
+		if medal != "":
+			var b: Node3D = Finale.badge_node(medal)
+			b.position = Vector3(-0.42, 0, 0.06)
+			b.scale = Vector3.ONE * 1.3
+			res.add_child(b)
 
 ## world position of a planet's centre
 func planet_pos(i: int) -> Vector3:

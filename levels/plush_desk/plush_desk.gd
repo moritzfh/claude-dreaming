@@ -17,12 +17,14 @@ const Cardboard := preload("res://levels/plush_desk/cardboard_claude.gd")
 const Keyboard := preload("res://levels/plush_desk/keyboard.gd")
 const Mobile := preload("res://levels/plush_desk/mobile.gd")
 const Props := preload("res://levels/plush_desk/props.gd")
+const Story := preload("res://levels/plush_desk/story/story.gd")
+const Finale := preload("res://levels/plush_desk/story/sec_finale.gd")
 const QUILT := preload("res://levels/plush_desk/shaders/quilt.gdshader")
 const T_WEAVE := preload("res://levels/plush_desk/textures/weave.png")
 const T_MOTTLE := preload("res://levels/plush_desk/textures/mottle.png")
 const A := "res://levels/plush_desk/audio/"
 
-enum S { WALK, APPROACH, PLUG, PLUGGED, DIVE, UNPLUG }
+enum S { WALK, APPROACH, PLUG, PLUGGED, DIVE, UNPLUG, STORY }
 
 const SPAWN := Vector3(-7.4, 0.05, 4.4)
 const MOBILE_POS := Vector3(0.6, 0.0, -4.6)
@@ -61,6 +63,11 @@ var _focus_fixed := false
 var _path: Array = []
 var _quiet := false
 var _test := ""
+var story: Story
+var we: WorldEnvironment
+var desk_lights: Array = []
+var keycap_mesh: Mesh
+var _story_start := ""
 
 # ------------------------------------------------------------------ build
 func build() -> void:
@@ -70,17 +77,20 @@ func build() -> void:
 		if a == "--pd_type": _fake_type = true
 		if a == "--pd_quiet": _quiet = true
 		if a.begins_with("--pd_test="): _test = a.substr(10)
+		if a == "--pd_story": _story_start = "0"
+		if a.begins_with("--pd_story_x="): _story_start = a.substr(13)
 	_environment()
 	_desk()
 	kb = Keyboard.new()
 	kb.name = "Keyboard"
 	add_child(kb)
-	kb.build(_glb_mesh("kb_base"), _glb_mesh("keycap"))
+	keycap_mesh = _glb_mesh("keycap")
+	kb.build(_glb_mesh("kb_base"), keycap_mesh)
 	props = Props.new()
 	props.name = "Props"
 	add_child(props)
 	props.build_mouse(_glb_mesh("mouse"), _glb_mesh("pad"), PAD_POS, kb.to_global(Vector3(kb.size.x * 0.35, 0.2, -kb.size.z * 0.5)))
-	props.build_lamp(Vector3(-13.0, 0.0, -6.5), Vector3(-3.0, 0.0, 1.6))
+	desk_lights.append(props.build_lamp(Vector3(-13.0, 0.0, -6.5), Vector3(-3.0, 0.0, 1.6)))
 	props.build_backdrop(-13.0, 96.0, 30.0)
 	props.build_sewing(_glb_mesh("planet"))
 	mobile = Mobile.new()
@@ -88,6 +98,7 @@ func build() -> void:
 	mobile.position = MOBILE_POS
 	add_child(mobile)
 	mobile.build(_glb_mesh("planet"), _glb_mesh("keycap"))
+	_show_results()
 
 	# the recording run starts on the keys and walks across them
 	var c := spawn_claude(SPAWN if not _auto else kb.to_global(Vector3(3.2, 0.75, 0.25)), -0.75 if not _auto else PI * 0.5)
@@ -104,6 +115,23 @@ func build() -> void:
 	c.spring.spring_length = 3.9
 	c.pitch = -0.42
 
+	# the world inside the STORY planet, built now so the dive never stalls
+	story = Story.new()
+	add_child(story)
+	story.claude = c
+	story.setup(self)
+	c.respawned.connect(func() -> void:
+		if state == S.STORY: story._on_respawned())
+	# the badge from the end of chapter one stays sewn on
+	var badge: String = notes().get("badge", "")
+	if badge != "":
+		Finale.attach_badge(c.rig, badge)
+	for a in OS.get_cmdline_user_args():
+		if a == "--pd_bot" or a.begins_with("--pd_bot="):
+			var bot: Node = (load("res://levels/plush_desk/source/story_bot.gd") as GDScript).new()
+			bot.set("lvl", self)
+			add_child(bot)
+
 	cine = Camera3D.new()
 	cine.name = "Cine"
 	cine.fov = 50.0
@@ -115,6 +143,8 @@ func build() -> void:
 	for a in OS.get_cmdline_user_args():
 		if a == "--pd_state=plugged":
 			call_deferred("_skip_to_plugged")
+	if _story_start != "":
+		call_deferred("enter_story", float(_story_start))
 	intro_finished.connect(_on_intro)
 
 func _glb_mesh(file: String) -> Mesh:
@@ -126,7 +156,7 @@ func _glb_mesh(file: String) -> Mesh:
 	return m
 
 func _environment() -> void:
-	var we := WorldEnvironment.new()
+	we = WorldEnvironment.new()
 	env = Environment.new()
 	var sky := Sky.new()
 	var sm := ShaderMaterial.new()
@@ -191,6 +221,7 @@ void sky() {
 	moon.shadow_enabled = false
 	moon.light_volumetric_fog_energy = 0.0
 	add_child(moon)
+	desk_lights.append(moon)
 	# soft fill from the front so cardboard Claude never turns into a silhouette
 	var fill := DirectionalLight3D.new()
 	fill.rotation_degrees = Vector3(-25, 15, 0)
@@ -200,6 +231,7 @@ void sky() {
 	fill.light_volumetric_fog_energy = 0.0
 	fill.light_specular = 0.2
 	add_child(fill)
+	desk_lights.append(fill)
 
 ## tilt-shift look: sharp around the focus distance, soft in front and behind
 func set_focus(d: float) -> void:
@@ -303,6 +335,7 @@ func _process(delta: float) -> void:
 		S.PLUG: _plug(delta)
 		S.PLUGGED: _plugged(delta)
 		S.DIVE: _diving(delta)
+		S.STORY: pass
 		S.UNPLUG: _unplug(delta)
 	# Claude's feet push down the felt keys
 	var feet: Array = []
@@ -315,7 +348,7 @@ func _process(delta: float) -> void:
 	kb.set_feet(feet, on_keys)
 	props.set_glow(kb.lit)
 	_update_camera(delta)
-	if hud:
+	if hud and state != S.STORY:
 		hud.set_prompt(_prompt if _capture == "" else "")
 
 func _port_world() -> Vector3:
@@ -547,10 +580,75 @@ func _diving(delta: float) -> void:
 	if _st > 1.7 and not _seq.has("done"):
 		_seq.done = true
 		var p: Dictionary = mobile.planets[_dive_i]
-		GameState.stats[level_id] = {"planet": p.id}
 		print("[plush_desk] dived into ", p.id)
+		if p.id == "story":
+			enter_story(0.0)
+			return
+		# the other worlds are still being sewn: back out to the mobile
 		say("This world is still being sewn … soon!", 2.6)
-		complete(2.4)
+		_cam_from = cine.global_transform
+		_set_state(S.PLUGGED)
+		var tw := create_tween()
+		tw.tween_method(func(v: float) -> void: hud.set_fx("white", v), 1.0, 0.0, 0.7)
+
+## the planet tags show the best result of each world
+func _show_results() -> void:
+	var n := notes()
+	if n.has("best_score"):
+		mobile.set_result("story", int(n.best_score), String(n.get("badge", "")))
+
+## the level's saved notes (best spools, badge, the name in the guestbook …)
+func notes() -> Dictionary:
+	if not GameState.stats.has(level_id) or not (GameState.stats[level_id] is Dictionary):
+		GameState.stats[level_id] = {}
+	return GameState.stats[level_id]
+
+## dive through the fabric into the world inside the STORY planet
+func enter_story(at := 0.0) -> void:
+	_set_state(S.STORY)
+	_prompt = ""
+	hud.set_prompt("")
+	for l in desk_lights:
+		(l as Light3D).visible = false
+	we.environment = story.env
+	usb.visible = false
+	usb.rotation = Vector3(PI * 0.5, 0, 0)
+	claude.rig.scale = Vector3.ONE
+	claude.rig.rotation = Vector3.ZERO
+	claude.rig.set("mood", 0)
+	claude.in_flight = false
+	claude.control_enabled = true
+	claude.auto_target = null
+	story.start()
+	story.begin(at)
+	var tw := create_tween()
+	tw.tween_method(func(v: float) -> void: hud.set_fx("white", v), 1.0, 0.0, 0.9)
+
+## leave the story world: "desk" = back to the mobile, "attic" = back to the hub
+## the "play it again" pocket: a fresh copy of the world, from the first page
+func restart_story() -> void:
+	story.stop()
+	story.queue_free()
+	story = Story.new()
+	add_child(story)
+	story.claude = claude
+	story.setup(self)
+	enter_story(0.0)
+
+func exit_story(mode: String) -> void:
+	story.stop()
+	_show_results()
+	Sound.music(A + "lullaby.ogg", 2.0)
+	for l in desk_lights:
+		(l as Light3D).visible = true
+	we.environment = env
+	if mode == "attic":
+		_set_state(S.PLUGGED)
+		back_to_hub()
+		return
+	_start_plug(true)
+	var tw := create_tween()
+	tw.tween_method(func(v: float) -> void: hud.set_fx("white", v), 1.0, 0.0, 0.9)
 
 func _start_unplug() -> void:
 	_set_state(S.UNPLUG)
@@ -636,6 +734,8 @@ func _mobile_shot(tall: bool) -> Transform3D:
 	return _look(MOBILE_POS + Vector3(0.0, 4.0, 13.0), MOBILE_POS + Vector3(0.0, 6.0, 0.0))
 
 func _update_camera(delta: float) -> void:
+	if state == S.STORY:
+		return
 	var target_focus := _focus
 	var tall := _capture == "tall"
 	if _capture != "":

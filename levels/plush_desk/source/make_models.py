@@ -253,6 +253,28 @@ def plush_ball(name, radius, cuts=20, pressure=12.0, stiff=5.0, seam_depth=0.06,
     export([obj], name)
 
 
+# ------------------------------------------------------------------- block
+def stuffed_block():
+    """1 x 1 x 1 stuffed cube, centred: six felt panels sewn along the edges (pinned)
+    and inflated. The level 9-slices it in a shader to any size, so the puffy
+    edges (the outer 0.14 of every side) keep their shape."""
+    reset()
+    half = Vector((0.5, 0.5, 0.5))
+    bm = box_grid(1.0, 1.0, 1.0, 1.0 / 24)
+    def edge_d(v):
+        a = sorted([0.5 - abs(v.co.x), 0.5 - abs(v.co.y), 0.5 - abs(v.co.z)])
+        return a[1]
+    write_attrs(bm, half, lambda v: max(0.0, 1.0 - edge_d(v) / 0.08))
+    round_box(bm, half, 0.05)
+    obj = mesh_from_bm(bm, "block")
+    vg = obj.vertex_groups.new(name="pin")
+    vg.add([v.index for v in obj.data.vertices
+            if sorted([0.5 - abs(v.co.x), 0.5 - abs(v.co.y), 0.5 - abs(v.co.z)])[1] < 0.03], 1.0, 'REPLACE')
+    inflate(obj, "pin", 16, pressure=4.0, stiff=6.0, bend=0.15)
+    finish(obj, "block", smooth_iters=1)
+    export([obj], "block")
+
+
 # ------------------------------------------------------------------- mouse
 def plush_mouse():
     """Stuffed computer mouse, 1.7 wide, 2.9 long, ~1.05 high (Blender: +Y = front).
@@ -297,13 +319,15 @@ def plush_mouse():
 
 
 if __name__ == "__main__":
-    want = sys.argv[1:] or ["keycap", "planet", "mouse", "pad", "kb_base"]
+    want = sys.argv[1:] or ["keycap", "planet", "mouse", "pad", "kb_base", "block"]
     if "keycap" in want:
         keycap()
     if "planet" in want:
         plush_ball("planet", 1.0, cuts=24)
     if "mouse" in want:
         plush_mouse()
+    if "block" in want:
+        stuffed_block()
     if "pad" in want:
         cushion("pad", 5.4, 4.6, 0.12, 0.08, pressure=0.05, stiff=12.0, round_r=0.05)
     if "kb_base" in want:

@@ -180,6 +180,40 @@ def wiggle():
     ogg('wiggle', mono(norm(out, 0.5)))
 
 
+def murmur():
+    """the narrator's placeholder voice: one soft hummed syllable"""
+    t = t_arr(0.16)
+    f0 = 165.0
+    ph = np.cumsum(f0 * (1.0 + 0.06 * np.sin(2 * np.pi * 7 * t))) / SR
+    src = 2 * ((ph % 1.0) < 0.35) - 1.0
+    v = bp(src, 300, 900) * 0.8 + bp(src, 1000, 1500) * 0.35 + bp(src, 2300, 2800) * 0.08
+    env = np.sin(np.pi * np.clip(t / 0.16, 0, 1)) ** 1.5
+    ogg('murmur', mono(norm(lp(v, 3000) * env, 0.5)))
+
+
+def hum():
+    """the sewing machine's motor and needle, a seamless 2 s loop"""
+    dur = 2.0
+    t = t_arr(dur)
+    motor = np.zeros_like(t)
+    for k, a in [(1, 1.0), (2, 0.5), (3, 0.35), (4, 0.2), (6, 0.1)]:
+        motor += np.sin(2 * np.pi * 92.0 * k * t) * a
+    motor *= 0.75 + 0.25 * np.sin(2 * np.pi * 4.0 * t)
+    needle = np.zeros_like(t)
+    for i in range(24):                 # 12 stitches per second
+        j = int(i / 12.0 * SR)
+        L = int(0.02 * SR)
+        needle[j:j + L] += hp(R.standard_normal(L), 2500) * np.exp(-np.arange(L) / (0.003 * SR))
+        L2 = int(0.05 * SR)
+        k2 = np.arange(L2) / SR
+        needle[j:j + L2] += np.sin(2 * np.pi * 180 * k2) * np.exp(-k2 / 0.012) * 0.5
+    x = lp(motor, 1200) * 0.5 + needle * 0.6
+    # cross-fade the end into the start so the loop is seamless
+    f = int(0.05 * SR)
+    x[:f] = x[:f] * np.linspace(0, 1, f) + x[-f:] * np.linspace(1, 0, f)
+    ogg('hum', mono(norm(x[:-f], 0.6)))
+
+
 def chime():
     tr = Track(3.0)
     for i, n in enumerate(['D6', 'F#6', 'A6', 'D7']):
@@ -190,7 +224,12 @@ def chime():
 
 
 if __name__ == '__main__':
-    squish(); twinkle(); creak(); click(); thunk(); pop(); rustle(); wiggle(); chime()
+    only = sys.argv[1:]
+    if only:
+        for n in only:
+            globals()[n]()
+        sys.exit(0)
+    squish(); twinkle(); creak(); click(); thunk(); pop(); rustle(); wiggle(); chime(); murmur(); hum()
     whoosh('whoosh', 0.55, 400, 2200, 0.55)
     whoosh('swish', 0.35, 1800, 900, 0.35)
     whoosh('dive', 1.4, 300, 3500, 0.6)

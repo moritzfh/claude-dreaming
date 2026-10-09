@@ -12,6 +12,8 @@ uniform vec4 tint : source_color = vec4(1.0);
 uniform float flute_pitch = 0.02;
 uniform float emblem = 0.0;            // paper sticker: draw the coral sparkle
 uniform vec4 marker_col : source_color = vec4(0.97, 0.6, 0.22, 1.0);
+// poster paint on the board (alpha = how well it covers); brush strokes show
+uniform vec4 paint : source_color = vec4(1.0, 1.0, 1.0, 0.0);
 
 varying vec3 v_opos;
 varying vec3 v_onrm;
@@ -52,6 +54,13 @@ void fragment() {
 		nmap = vec3(0.5 + 0.06 * cos(UV.x / flute_pitch * TAU), 0.5, 1.0);
 		alb *= 0.97 + 0.03 * f;
 		alb *= 0.92 + 0.16 * m.r;
+		if (paint.a > 0.0) {
+			float stroke = texture(mottle_tex, vec2(UV.x * 0.35, UV.y * 2.5)).g;
+			float cover = clamp(paint.a * (0.82 + 0.35 * stroke) - m.b * 0.12, 0.0, 1.0);
+			vec3 pc = paint.rgb * (0.9 + 0.12 * stroke);
+			alb = mix(alb, pc, smoothstep(0.35, 0.75, cover));
+			rough = mix(rough, 0.6, cover);
+		}
 	} else if (kind == 1) {
 		float v = UV.y;
 		float wave = 0.5 + 0.3 * sin(UV.x / flute_pitch * TAU);
