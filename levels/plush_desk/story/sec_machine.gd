@@ -42,6 +42,8 @@ func build() -> void:
 		var x0: float = p[0]
 		var x1: float = p[1]
 		Kit.block(root, Vector3((x0 + x1) * 0.5, -1.5, 0.0), Vector3(x1 - x0, 3.0, 4.2), Color(0.86, 0.45, 0.4), Kit.CREAM, 1, true)
+		Kit.trim(root, x0 + 0.05, x1 - 0.05, 0.0, 2.2, Kit.CREAM, "scallop")
+		Kit.tape_measure(root, x0 + 0.4, x1 - 0.4, -0.62, 2.18, int(x0 - 186.0) * 10)
 	w.checkpoint(Vector3(189.0, 0.0, 0.0), 1, Kit.TEAL)
 	w.key_sign(Vector3(190.6, 0.0, w.lane_z(2) - 0.65), KEY_SHIFT, "shift", 2.25)
 	w.narrate_at(190.4, "That's the sewing machine. It has never once stopped for anybody. Don't take it personally.", 4.0)
@@ -210,7 +212,7 @@ func update(delta: float) -> void:
 			_speed = lerpf(_speed, target, 1.0 - exp(-1.5 * delta))
 			mx += _speed * delta
 		if lp.x < mx + 0.45 and lp.x > mx - 7.0 and lp.y < 3.4:
-			w.hurt()
+			w.hurt("machine")
 	# animate the machine
 	machine.position.x = mx
 	var stamp := absf(sin(w.t * (16.0 if running else 2.0)))
@@ -230,7 +232,7 @@ func update(delta: float) -> void:
 	for p in pins:
 		var px: float = p[0]
 		if absf(lp.x - px) < 0.3 and absf(lp.z - w.lane_z(p[1])) < 0.5 and lp.y < 1.6:
-			w.hurt()
+			w.hurt("pin")
 	_rollers(delta, lp)
 	# the plug
 	if running and lp.x > X_PLUG - 1.0:
@@ -269,7 +271,7 @@ func _rollers(delta: float, lp: Vector3) -> void:
 			r.on = false
 			n.visible = false
 		elif absf(lp.x - r.x) < 0.6 and absf(lp.z - n.position.z) < 0.6 and lp.y < 0.95:
-			w.hurt()
+			w.hurt("roller")
 
 func _unplug() -> void:
 	running = false

@@ -36,6 +36,14 @@ func _ready() -> void:
 			exit_to = a.substr(14)
 	story = lvl.get("story")
 	c = lvl.get("claude")
+	if OS.get_cmdline_user_args().has("--pd_count"):
+		var geo := story.find_children("*", "GeometryInstance3D", true, false)
+		var mm := 0
+		var lab := 0
+		for g in geo:
+			if g is MultiMeshInstance3D: mm += 1
+			if g is Label3D: lab += 1
+		_log("story nodes: %d geometry (%d multimesh, %d labels), %d lights" % [geo.size(), mm, lab, story.find_children("*", "Light3D", true, false).size()])
 	c.respawned.connect(_on_respawn)
 	_route()
 	for a in OS.get_cmdline_user_args():
@@ -475,6 +483,11 @@ func _river(p: Vector3) -> void:
 	if p.x > 318.5:
 		_next()
 		return
+	if OS.get_cmdline_user_args().has("--pd_bot_debug") and c.velocity.y > 7.5:
+		_log("FAST UP v %s at %s floor %s" % [str(c.velocity), str(p), str(c.is_on_floor())])
+		for k in c.get_slide_collision_count():
+			var col := c.get_slide_collision(k)
+			_log("   hit %s / %s" % [(col.get_collider() as Node).name, (col.get_collider() as Node).get_parent().name])
 	_want("move_right")
 	var ch: Object = sec("choice")
 	# hop from leaf to leaf: jump when the next leaf is in reach
@@ -502,9 +515,14 @@ func _cliff(p: Vector3) -> void:
 	var ch: Object = sec("choice")
 	var gust: bool = ch.get("_gust_on")
 	_want("move_right")
-	if gust and c.is_on_floor():
+	if gust and c.is_on_floor() and p.x > 290.0:
 		held.erase("move_right")
-	for jx in [289.4, 293.6, 297.6, 301.9, 306.4, 310.5]:
+	if c.is_on_floor() and absf(c.velocity.x) < 0.3 and not gust:
+		_blocked += get_physics_process_delta_time()
+		if _blocked > 0.3:
+			_blocked = 0.0
+			_tap_now("jump")
+	for jx in [287.5, 292.9, 296.9, 300.9, 304.9, 309.6]:
 		if p.x > jx and p.x < jx + 0.4 and c.is_on_floor():
 			_tap_now("jump")
 	if p.x > 309.5 and p.x < 313.0:

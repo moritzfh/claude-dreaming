@@ -28,6 +28,7 @@ const SECTION_SCRIPTS := [
 	"res://levels/plush_desk/story/sec_choice.gd",
 	"res://levels/plush_desk/story/sec_tower.gd",
 	"res://levels/plush_desk/story/sec_finale.gd",
+	"res://levels/plush_desk/story/sec_life.gd",
 ]
 
 var level: Node3D            # the DreamLevel (plush_desk.gd)
@@ -243,6 +244,11 @@ func begin(at: float) -> void:
 		if sec.has_method("skip_to"):
 			sec.call("skip_to", at)
 	place_claude(best.p, best.lane, 1.0, best.has("near"))
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--pd_place="):
+			# screenshots: put Claude exactly here (x,y,layer)
+			var v := a.substr(11).split(",")
+			place_claude(Vector3(float(v[0]), float(v[1]), 0.0), int(v[2]) if v.size() > 2 else 1)
 
 func lane_z(i: int) -> float:
 	return LANES[clampi(i, 0, 2)]
@@ -261,7 +267,7 @@ func spool_arc(a: Vector3, b: Vector3, n: int, h := 1.2) -> void:
 		spool(a.lerp(b, k) + Vector3(0, 4.0 * h * k * (1.0 - k), 0))
 
 func checkpoint(p: Vector3, ln := 1, col := Color(0.88, 0.45, 0.38)) -> void:
-	var n := Kit.pin(self, Vector3(p.x, p.y, lane_z(ln) - 0.75 if ln < 2 else lane_z(ln) - 0.6), col)
+	var n := Kit.pin(self, Vector3(p.x - 0.7, p.y, lane_z(ln) - 0.75 if ln < 2 else lane_z(ln) - 0.6), col)
 	checkpoints.append({"p": Vector3(p.x, p.y + 0.3, lane_z(ln)), "lane": ln, "node": n, "on": false})
 
 ## a pin anywhere (off the layers, e.g. on the yarn tower): Claude comes back
@@ -285,9 +291,11 @@ func shake(amount: float) -> void:
 	_shake = maxf(_shake, amount)
 
 ## caught by a hazard: a puff of cotton, a "plop", back to the last pin
-func hurt() -> void:
+func hurt(reason := "") -> void:
 	if _hurt_t > 0.0:
 		return
+	if OS.get_cmdline_user_args().has("--pd_bot_debug"):
+		print("HURT by %s at %s" % [reason, str(claude_local())])
 	_hurt_t = 0.6
 	deaths += 1
 	var lp := claude_local()
@@ -308,7 +316,7 @@ void sky() {
 	float y = EYEDIR.y;
 	vec3 c = mix(vec3(1.0, 0.84, 0.64), vec3(0.62, 0.79, 0.96), smoothstep(-0.02, 0.22, y));
 	c = mix(c, vec3(0.36, 0.55, 0.88), smoothstep(0.25, 0.75, y));
-	c = mix(c, vec3(0.85, 0.8, 0.74), smoothstep(0.0, -0.3, y));
+	c = mix(c, vec3(0.62, 0.76, 0.56), smoothstep(0.0, -0.2, y));
 	// a faint woven texture so the sky reads as fabric too
 	float wv = sin(EYEDIR.x * 900.0) * sin(EYEDIR.y * 900.0 + EYEDIR.z * 600.0);
 	c *= 0.985 + 0.02 * wv;
@@ -383,12 +391,12 @@ uniform sampler2D mottle : filter_linear_mipmap, repeat_enable;
 varying vec3 wp;
 void vertex() { wp = VERTEX; }
 void fragment() {
-	float h = clamp((wp.y + 70.0) / 150.0, 0.0, 1.0);
-	vec3 low = vec3(1.0, 0.82, 0.6);
-	vec3 mid = vec3(0.6, 0.78, 0.96);
-	vec3 top = vec3(0.32, 0.52, 0.86);
-	vec3 c = mix(low, mid, smoothstep(0.25, 0.5, h));
-	c = mix(c, top, smoothstep(0.5, 0.9, h));
+	float wy = wp.y + 60.0;
+	vec3 low = vec3(1.0, 0.84, 0.66);
+	vec3 mid = vec3(0.58, 0.77, 0.96);
+	vec3 top = vec3(0.33, 0.53, 0.88);
+	vec3 c = mix(low, mid, smoothstep(2.0, 16.0, wy));
+	c = mix(c, top, smoothstep(18.0, 60.0, wy));
 	float w = texture(weave, wp.xy * 0.4).b;
 	float m = texture(mottle, wp.xy * 0.004).r;
 	c *= 0.93 + 0.08 * w + (m - 0.5) * 0.06;
@@ -425,6 +433,13 @@ void fragment() {
 		while x < 520.0:
 			var piece := Kit.hills(x, x + step + 0.5, -30.0, L[1], L[2], L[4], L[6])
 			Kit.felt_cutout(back, piece, 1.0, Transform3D(Basis(), Vector3(0, 0, z)), L[5], 0.4 if z < -15.0 else 0.9)
+			# a running stitch just under the top edge, like an appliqué
+			var top := PackedVector2Array()
+			for k in range(1, piece.size() - 1):
+				top.append(piece[k] + Vector2(0, -0.35 - absf(z) * 0.012))
+			var far := absf(z) / 20.0
+			back.add_child(Kit.stitch_line(top, z + 0.52, 0.3 * far + 0.25, 0.22 * far + 0.18, 0.05 * far + 0.05,
+				(L[5] as Color).lightened(0.45)))
 			x += step
 		if z > -15.0:
 			# felt trees and bushes on the nearest hills
@@ -442,6 +457,15 @@ void fragment() {
 					Transform3D(Basis(), Vector3(0, th, 0.1)), cols[k % 3], 1.0)
 				tx += 7.0 + 6.0 * absf(sin(k * 2.3))
 				k += 1
+	# a felt meadow far below everything, so looking down never shows a void
+	var floor_mi := MeshInstance3D.new()
+	var pm := PlaneMesh.new()
+	pm.size = Vector2(560.0, 160.0)
+	floor_mi.mesh = pm
+	floor_mi.position = Vector3(200.0, -9.0, -30.0)
+	floor_mi.material_override = Kit.fabric(Color(0.5, 0.7, 0.42), Kit.T_FELT, 0.5, 0.6)
+	floor_mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	back.add_child(floor_mi)
 	# cotton clouds on the sky
 	for i in 9:
 		var c := Kit.cloud(back, Vector3(-10.0 + i * 55.0, 20.0 + 6.0 * sin(i * 1.3), -66.0), 9.0 + 4.0 * sin(i), false)
@@ -502,6 +526,24 @@ func _build_hud() -> void:
 	hud.layer = 11
 	hud.visible = false
 	add_child(hud)
+	# a warm vignette, like the edges of an old photo
+	var vg := TextureRect.new()
+	var gt := GradientTexture2D.new()
+	gt.fill = GradientTexture2D.FILL_RADIAL
+	gt.fill_from = Vector2(0.5, 0.5)
+	gt.fill_to = Vector2(1.08, 1.08)
+	gt.width = 256
+	gt.height = 256
+	var gr := Gradient.new()
+	gr.set_color(0, Color(0.25, 0.14, 0.12, 0.0))
+	gr.set_color(1, Color(0.25, 0.14, 0.12, 0.42))
+	gr.add_point(0.55, Color(0.25, 0.14, 0.12, 0.0))
+	gt.gradient = gr
+	vg.texture = gt
+	vg.stretch_mode = TextureRect.STRETCH_SCALE
+	vg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	vg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	hud.add_child(vg)
 	var panel := PanelContainer.new()
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.95, 0.88, 0.74, 0.95)
@@ -733,6 +775,8 @@ func _collect(lp: Vector3, delta: float) -> void:
 			_chain_t = 0.9
 			_counter_pop = 1.0
 			_sparkle(p)
+			if _chain >= 3:
+				_float_text(p + Vector3(0, 0.45, 0.2), "x%d" % _chain, Color(1.0, 0.86, 0.5).lerp(Kit.CORAL, minf((_chain - 3) / 8.0, 1.0)))
 	spool_label.text = str(spools)
 	_counter_pop = maxf(_counter_pop - delta * 4.0, 0.0)
 	spool_label.scale = Vector2.ONE * (1.0 + 0.35 * _counter_pop)
@@ -787,6 +831,43 @@ func _on_respawned() -> void:
 			bd = d
 			best = i
 	lane = best
+	# back out of the pin with a little pop
+	claude.rig.scale = Vector3.ONE * 0.15
+	var tw := claude.rig.create_tween()
+	tw.tween_property(claude.rig, "scale", Vector3.ONE, 0.45).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	_sparkle(lp + Vector3(0, 0.7, 0))
+	Sound.sfx(A + "squish.ogg", -8.0, 1.5)
+
+## a little number that floats up and fades (spool chains)
+func _float_text(p: Vector3, text: String, col: Color) -> void:
+	var l := Kit.label(self, text, p, 0.0045, col, 64)
+	l.outline_size = 14
+	l.outline_modulate = Color(0.3, 0.2, 0.32)
+	l.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	l.no_depth_test = true
+	l.render_priority = 5
+	l.scale = Vector3.ONE * 0.4
+	var tw := l.create_tween().set_parallel(true)
+	tw.tween_property(l, "scale", Vector3.ONE, 0.25).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+	tw.tween_property(l, "position:y", p.y + 0.9, 0.9).set_ease(Tween.EASE_OUT)
+	tw.tween_property(l, "modulate:a", 0.0, 0.4).set_delay(0.55)
+	tw.chain().tween_callback(l.queue_free)
+
+## a felt sign on a stick at the start of a part of the course
+func section_sign(p: Vector3, text: String, col: Color) -> void:
+	var n := Node3D.new()
+	n.position = p
+	n.rotation.y = 0.12
+	add_child(n)
+	Kit.block(n, Vector3(0, 0.75, 0), Vector3(0.1, 1.5, 0.1), Color(0.62, 0.42, 0.3), Kit.CREAM, 0, false)
+	var w := 0.5 + text.length() * 0.2
+	Kit.block(n, Vector3(0, 1.7, 0.02), Vector3(w, 0.62, 0.1), col, Kit.CREAM, 0, false)
+	var l := Kit.label(n, text, Vector3(0, 1.7, 0.16), 0.0042, Kit.CREAM, 64)
+	l.outline_size = 10
+	l.outline_modulate = col.darkened(0.45)
+	# a tiny felt flag on top
+	Kit.felt_cutout(n, PackedVector2Array([Vector2(0, 0), Vector2(0.3, 0.1), Vector2(0, 0.2)]), 0.02,
+		Transform3D(Basis(), Vector3(w * 0.5 - 0.05, 2.0, 0.02)), Kit.MUSTARD, 4.0)
 
 # ------------------------------------------------------------------ camera
 func _update_camera(delta: float) -> void:
@@ -849,20 +930,37 @@ func _sparkle(p: Vector3) -> void:
 	pm.scale_max = 1.0
 	s.process_material = pm
 	var q := QuadMesh.new()
-	q.size = Vector2(0.12, 0.12)
-	var qm := StandardMaterial3D.new()
-	qm.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-	qm.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
-	qm.albedo_color = Color(1.0, 0.9, 0.55)
-	qm.emission_enabled = true
-	qm.emission = Color(1.0, 0.85, 0.4)
-	qm.emission_energy_multiplier = 2.0
-	q.material = qm
+	q.size = Vector2(0.2, 0.2)
+	q.material = _sparkle_mat()
 	s.draw_pass_1 = q
 	s.position = p
 	add_child(s)
 	s.emitting = true
 	get_tree().create_timer(1.2).timeout.connect(s.queue_free)
+
+var _spark_mat: StandardMaterial3D
+## a soft four-pointed twinkle
+func _sparkle_mat() -> StandardMaterial3D:
+	if _spark_mat:
+		return _spark_mat
+	var img := Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	for y in 64:
+		for x in 64:
+			var d := Vector2(x - 31.5, y - 31.5) / 31.5
+			var core := clampf(1.0 - d.length() * 2.2, 0.0, 1.0)
+			var rays := clampf(1.0 - absf(d.x) * 9.0, 0.0, 1.0) * clampf(1.0 - absf(d.y), 0.0, 1.0)
+			rays = maxf(rays, clampf(1.0 - absf(d.y) * 9.0, 0.0, 1.0) * clampf(1.0 - absf(d.x), 0.0, 1.0))
+			var a := clampf(core * core + rays * 0.9, 0.0, 1.0)
+			img.set_pixel(x, y, Color(1, 1, 1, a))
+	_spark_mat = StandardMaterial3D.new()
+	_spark_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	_spark_mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	_spark_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	_spark_mat.blend_mode = BaseMaterial3D.BLEND_MODE_ADD
+	_spark_mat.albedo_texture = ImageTexture.create_from_image(img)
+	_spark_mat.albedo_color = Color(1.0, 0.85, 0.45)
+	_spark_mat.vertex_color_use_as_albedo = true
+	return _spark_mat
 
 func _puff(p: Vector3) -> void:
 	var s := GPUParticles3D.new()

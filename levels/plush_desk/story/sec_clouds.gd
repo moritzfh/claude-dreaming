@@ -51,6 +51,7 @@ func build() -> void:
 	_cloud(86.6, 3.2, 2, 2.4)
 	_cloud(89.4, 4.3, 1, 2.8, 1)
 	w.spool(Vector3(81.0, 1.8, M)); w.spool(Vector3(83.8, 2.9, B)); w.spool(Vector3(86.6, 4.0, B)); w.spool(Vector3(89.4, 5.1, M))
+	w.section_sign(Vector3(77.4, 0.0, -1.6), "COTTON CLOUDS", Kit.SKY.darkened(0.25))
 	w.narrate_at(80.0, "Cotton wool clouds. Soft landings, guaranteed. Mostly.", 2.8)
 	w.narrate_at(84.4, "Some only grow in the back. W takes you there.", 2.8)
 	w.key_sign(Vector3(84.6, 2.1, B - 0.6), KEY_W, "")

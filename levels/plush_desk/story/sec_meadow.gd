@@ -16,6 +16,8 @@ var _got := false
 func _ground(x0: float, x1: float, top: float, pattern := 4, col := Kit.SOIL, col2 := Kit.GRASS) -> void:
 	var h := 3.0
 	Kit.block(root, Vector3((x0 + x1) * 0.5, top - h * 0.5, 0.0), Vector3(x1 - x0, h, 4.2), col, col2, pattern, true)
+	Kit.trim(root, x0 + 0.05, x1 - 0.05, top, 2.2, col2.darkened(0.12), "pinking")
+	Kit.dress_front(root, x0, x1, top, 2.19, [col.darkened(0.12), col.lightened(0.1), Kit.MUSTARD.darkened(0.1), col2.darkened(0.2)], x0)
 
 func build() -> void:
 	root = Node3D.new()
@@ -35,6 +37,7 @@ func build() -> void:
 	w.narrate_at(19.0, "Left, right, up. You know the basics. The rest, you'll make up as you go.", 3.4)
 	_ground(28.5, 44.0, 0.0)
 	w.checkpoint(Vector3(30.0, 0.0, 0.0), 1, Kit.CORAL)
+	w.section_sign(Vector3(12.6, 0.0, -1.6), "FELT MEADOW", Kit.GRASS.darkened(0.25))
 	# --- the hedge: front and middle layers are blocked, the back one is free
 	Kit.block(root, Vector3(36.0, 1.3, 0.62), Vector3(5.6, 2.6, 2.5), Color(0.3, 0.52, 0.32), Kit.GRASS, 0, true)
 	# the hedge's face: rows of round felt bushes, lighter at the top

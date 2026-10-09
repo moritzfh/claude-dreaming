@@ -624,7 +624,6 @@ func enter_story(at := 0.0) -> void:
 	var tw := create_tween()
 	tw.tween_method(func(v: float) -> void: hud.set_fx("white", v), 1.0, 0.0, 0.9)
 
-## leave the story world: "desk" = back to the mobile, "attic" = back to the hub
 ## the "play it again" pocket: a fresh copy of the world, from the first page
 func restart_story() -> void:
 	story.stop()
@@ -635,6 +634,7 @@ func restart_story() -> void:
 	story.setup(self)
 	enter_story(0.0)
 
+## leave the story world: "desk" = back to the mobile, "attic" = back to the hub
 func exit_story(mode: String) -> void:
 	story.stop()
 	_show_results()

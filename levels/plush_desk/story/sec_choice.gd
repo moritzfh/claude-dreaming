@@ -25,6 +25,7 @@ var _gust_on := false
 var rocks: Array = []          # [x, lane]
 var gust_fx: GPUParticles3D
 var outline: MeshInstance3D
+var sock: Node3D
 var forces: Array = []         # [variant id, bounce/updraft dict]
 
 func build() -> void:
@@ -34,7 +35,10 @@ func build() -> void:
 	var M: float = w.lane_z(1)
 	Kit.block(root, Vector3(279.5, -1.5, 0.0), Vector3(17.0, 3.0, 4.2), Kit.LILAC, Kit.CREAM, 5, true)
 	Kit.block(root, Vector3(322.0, -1.5, 0.0), Vector3(8.0, 3.0, 4.2), Kit.LILAC, Kit.CREAM, 5, true)
+	Kit.trim(root, 271.05, 287.95, 0.0, 2.2, Kit.PINK, "ricrac")
+	Kit.trim(root, 318.05, 325.95, 0.0, 2.2, Kit.PINK, "ricrac")
 	w.checkpoint(Vector3(274.6, 0.0, 0.0), 1, Kit.PINK)
+	w.section_sign(Vector3(272.6, 0.0, -1.6), "YOUR CHOICE", Kit.LILAC.darkened(0.25))
 	w.narrate_at(275.4, "Now the best part. You choose what comes next. And we sew it in. Right now.", 4.0)
 	# the workbench behind the cards
 	Kit.block(root, Vector3(281.6, 1.3, -1.7), Vector3(7.4, 0.35, 1.5), Color(0.62, 0.42, 0.3), Kit.CREAM, 3, true)
@@ -144,6 +148,10 @@ func _build_castle() -> void:
 			Kit.block(pv, Vector3(0, h + 0.25, -1.4 + k * 1.4), Vector3(1.4, 0.5, 0.8), Color(0.95, 0.72, 0.78), Kit.CREAM, 0, false)
 		var flag := Kit.pin(pv, Vector3(0, h + 0.4, -1.6), Kit.TEAL)
 		flag.scale = Vector3.ONE * 0.8
+		# stripes on the inflatable wall
+		for k in 3:
+			var stripe := Kit.block(pv, Vector3(0, h * (0.25 + k * 0.25), 2.12), Vector3(1.42, 0.16, 0.04), [Kit.TEAL, Kit.MUSTARD, Kit.CREAM][k], Kit.CREAM, 0, false)
+			stripe.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 	var ex := _piece("castle", Vector3(315.5, 0.0, 0.0))
 	Kit.block(ex, Vector3(0, 2.1, 0), Vector3(5.0, 4.2, 4.2), Kit.TEAL, Kit.CREAM, 1, true)
 	for k in 5:
@@ -182,8 +190,10 @@ void fragment() {
 	river.material_override = m
 	pv.add_child(river)
 	# felt leaves drifting on the ribbon, in all three layers
-	var spec := [[290.5, 1, 1.4, 0.7, 0.0], [294.0, 0, 1.6, 0.8, 1.0], [297.5, 2, 1.2, 0.9, 2.0], [301.0, 1, 1.8, 0.6, 0.5],
-		[304.5, 0, 1.5, 0.75, 1.7], [308.0, 2, 1.4, 0.85, 2.6], [311.5, 1, 1.6, 0.7, 0.9], [315.0, 0, 1.0, 0.6, 1.4]]
+	var spec := []
+	var lanes := [1, 1, 2, 2, 1, 0, 0, 1, 1, 2, 1]
+	for i in lanes.size():
+		spec.append([290.0 + i * 2.6, lanes[i], 0.3 + 0.25 * absf(sin(i * 1.9)), 0.6 + 0.3 * absf(cos(i * 1.3)), i * 0.9])
 	for s in spec:
 		var lpv := _piece("river", Vector3.ZERO)
 		var body := AnimatableBody3D.new()
@@ -192,18 +202,19 @@ void fragment() {
 		var leaf := PackedVector2Array()
 		for i in 24:
 			var a := TAU * i / 24.0
-			leaf.append(Vector2(cos(a) * 0.95, sin(a) * 0.55 * (1.0 - 0.3 * cos(a))))
+			leaf.append(Vector2(cos(a) * 1.15, sin(a) * 0.62 * (1.0 - 0.3 * cos(a))))
 		Kit.felt_cutout(body, leaf, 0.16, Transform3D(Basis(Vector3.RIGHT, -PI * 0.5), Vector3(0, 0.08, 0)), Color(0.42, 0.68, 0.38), 3.0)
-		Kit.felt_cutout(body, Kit.rect(1.6, 0.04), 0.02, Transform3D(Basis(Vector3.RIGHT, -PI * 0.5), Vector3(0, 0.17, 0)), Color(0.3, 0.52, 0.3), 3.0)
+		Kit.felt_cutout(body, Kit.rect(2.0, 0.04), 0.02, Transform3D(Basis(Vector3.RIGHT, -PI * 0.5), Vector3(0, 0.17, 0)), Color(0.3, 0.52, 0.3), 3.0)
 		var cs := CollisionShape3D.new()
-		var bs := BoxShape3D.new(); bs.size = Vector3(1.8, 0.3, 1.1)
+		var bs := BoxShape3D.new(); bs.size = Vector3(2.2, 0.3, 1.2)
 		cs.shape = bs
 		body.add_child(cs)
 		leaves.append([body, body.position, s[2], s[3], s[4]])
 		w.spool(Vector3(s[0], 1.0, w.lane_z(s[1])))
 
 func _build_cliff() -> void:
-	var steps := [[291.0, 1.0, 4.0], [295.5, 2.0, 3.0], [299.5, 3.2, 3.0], [303.8, 4.4, 3.4], [308.5, 5.4, 3.0]]
+	# a staircase up the cliff, no gaps: a gust only blows you back down a step
+	var steps := [[291.25, 1.0, 4.5], [295.5, 2.2, 4.0], [299.5, 3.4, 4.0], [303.5, 4.4, 4.0], [307.75, 5.4, 4.5]]
 	for st in steps:
 		var pv := _piece("cliff", Vector3(st[0], 0.0, 0.0))
 		var h: float = st[1]
@@ -211,12 +222,42 @@ func _build_cliff() -> void:
 		Kit.block(pv, Vector3(0, (h - 3.0) * 0.5 - 1.5, 0), Vector3(float(st[2]) - 0.2, maxf(h, 0.1) + 0.01, 4.0), Color(0.6, 0.4, 0.28), Kit.CREAM, 0, false)
 		w.spool(Vector3(float(st[0]), h + 0.8, w.lane_z(1)))
 	# felt rocks to hide behind when the wind blows
-	var rk := [[293.6, 1, 1.0], [297.6, 0, 2.0], [301.8, 2, 3.2], [306.2, 1, 4.4]]
+	var rk := [[292.8, 1, 1.0], [296.9, 0, 2.2], [300.9, 2, 3.4], [304.9, 1, 4.4], [308.6, 0, 5.4]]
 	for r in rk:
 		var pv := _piece("cliff", Vector3(r[0], r[2], w.lane_z(r[1])))
-		Kit.bush(pv, Vector3(0, 0, 0), 0.55, Color(0.55, 0.52, 0.5), float(r[0]))
-		Kit.block(pv, Vector3(0, 0.45, 0), Vector3(0.9, 0.9, 0.9), Color(0.55, 0.52, 0.5), Kit.CREAM, 0, true)
+		var stone := Color(0.6, 0.57, 0.55).lerp(Color(0.5, 0.52, 0.6), fposmod(float(r[0]) * 0.37, 1.0))
+		for k in 2:
+			var peb := Kit.felt_cutout(pv, Kit.blob(0.52 - k * 0.12, 22, 0.1, float(r[0]) + k, true), 0.45,
+				Transform3D(Basis(), Vector3(k * 0.18 - 0.05, 0.45 - k * 0.12, -0.2 + k * 0.4)), stone.lightened(k * 0.08), 3.0)
+			peb.position.y = 0.42 - k * 0.1
+		var sb := StaticBody3D.new()
+		var cs := CollisionShape3D.new()
+		var bs := BoxShape3D.new(); bs.size = Vector3(0.9, 0.9, 0.9)
+		cs.shape = bs
+		cs.position.y = 0.45
+		sb.add_child(cs)
+		pv.add_child(sb)
 		rocks.append([r[0], r[1]])
+	var sock_pole := _piece("cliff", Vector3(290.2, 1.0, -1.7))
+	Kit.block(sock_pole, Vector3(0, 1.2, 0), Vector3(0.08, 2.4, 0.08), Color(0.62, 0.42, 0.3), Kit.CREAM, 0, false)
+	sock = Node3D.new()
+	sock.position = Vector3(0, 2.3, 0)
+	sock_pole.add_child(sock)
+	for k in 4:
+		var ring := MeshInstance3D.new()
+		var cm := CylinderMesh.new()
+		cm.top_radius = 0.2 - k * 0.035; cm.bottom_radius = 0.2 - (k + 1) * 0.035; cm.height = 0.32; cm.radial_segments = 12
+		cm.cap_top = false; cm.cap_bottom = false
+		ring.mesh = cm
+		ring.rotation.z = PI * 0.5
+		ring.position.x = -0.18 - k * 0.32
+		ring.material_override = Kit.fabric([Kit.CORAL, Kit.CREAM][k % 2], Kit.T_FELT, 4.0, 1.0)
+		sock.add_child(ring)
+	for st in steps:
+		var x0: float = float(st[0]) - float(st[2]) * 0.5
+		var x1: float = float(st[0]) + float(st[2]) * 0.5
+		var tp := _piece("cliff", Vector3.ZERO)
+		Kit.trim(tp, x0 + 0.05, x1 - 0.05, float(st[1]), 2.2, Kit.GRASS.darkened(0.12), "pinking")
 	# the last chasm: a tailwind at the top carries a glide over it
 	var top := _piece("cliff", Vector3(315.5, 0.0, 0.0))
 	Kit.block(top, Vector3(0, 2.1, 0), Vector3(5.0, 4.2, 4.2), Color(0.66, 0.46, 0.32), Kit.GRASS, 4, true)
@@ -268,9 +309,13 @@ func update(delta: float) -> void:
 		var base: Vector3 = l[1]
 		body.position = base + Vector3(sin(w.t * float(l[3]) + float(l[4])) * float(l[2]), sin(w.t * 2.0 + float(l[4])) * 0.05, 0)
 	if chosen == "river" and lp.x > GAP0 and lp.x < GAP1 and lp.y < -0.45:
-		w.hurt()
+		w.hurt("river")
 	if chosen == "cliff" and lp.x > GAP0 + 2.0 and lp.x < GAP1 - 3.0:
 		_wind(delta, lp)
+	if sock and chosen == "cliff":
+		# streams out to the left while it gusts, droops when it's calm
+		var target := 0.05 if _gust_on else 1.1
+		sock.rotation.z = lerpf(sock.rotation.z, target + sin(w.t * (9.0 if _gust_on else 2.0)) * (0.08 if _gust_on else 0.03), 1.0 - exp(-4.0 * delta))
 
 func _choose(id: String) -> void:
 	chosen = id
@@ -351,12 +396,15 @@ func _wind(delta: float, lp: Vector3) -> void:
 		var rx: float = r[0]
 		if int(r[1]) == lane and rx > lp.x and rx - lp.x < 1.6:
 			return
-	w.claude.velocity.x -= 9.0 * delta * (1.0 if w.claude.is_on_floor() else 1.6)
-	w.claude.global_position.x -= 2.4 * delta
+	w.claude.velocity.x -= 7.0 * delta * (1.0 if w.claude.is_on_floor() else 1.6)
+	w.claude.global_position.x -= 1.7 * delta
 
 func skip_to(at: float) -> void:
 	if at > 290.0 and chosen == "":
 		chosen = "castle"
+		for a in OS.get_cmdline_user_args():
+			if a.begins_with("--pd_choice="):
+				chosen = a.substr(12)
 		w.set("choice", chosen)
 		_set_variant(chosen, true)
 		outline.visible = false

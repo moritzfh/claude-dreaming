@@ -446,3 +446,133 @@ static func cloud(parent: Node3D, pos: Vector3, w: float, collide := true) -> No
 		sb.add_child(cs)
 		n.add_child(sb)
 	return n
+
+## a trim sewn along the top of a block's front face (x0..x1, at height top,
+## in front of z): "pinking" (zigzag, like cut with pinking shears),
+## "scallop" (a lace edge) or "ricrac" (a wavy braid)
+static func trim(parent: Node3D, x0: float, x1: float, top: float, z: float, col: Color, style := "pinking") -> void:
+	var x := x0
+	while x < x1 - 0.05:
+		var xe := minf(x + 8.0, x1)
+		var poly := PackedVector2Array()
+		match style:
+			"pinking":
+				poly.append(Vector2(x, top + 0.02))
+				poly.append(Vector2(xe, top + 0.02))
+				var n := maxi(int((xe - x) / 0.2), 1)
+				for i in n + 1:
+					var px := xe - (xe - x) * i / n
+					poly.append(Vector2(px, top - 0.13 if i % 2 == 0 else top - 0.22))
+			"scallop":
+				poly.append(Vector2(x, top + 0.02))
+				poly.append(Vector2(xe, top + 0.02))
+				var n2 := maxi(int((xe - x) / 0.3), 1)
+				var sw := (xe - x) / n2
+				for i in n2:
+					var cx := xe - sw * (i + 0.5)
+					for k in 7:
+						var a := PI * k / 6.0
+						poly.append(Vector2(cx + cos(a) * sw * 0.5, top - 0.08 - sin(a) * sw * 0.42))
+				poly.append(Vector2(x, top - 0.08))
+			_:
+				var n3 := maxi(int((xe - x) / 0.06), 2)
+				for i in n3 + 1:
+					var px2 := lerpf(x, xe, float(i) / n3)
+					poly.append(Vector2(px2, top - 0.1 + sin(px2 * 18.0) * 0.045 + 0.035))
+				for i in n3 + 1:
+					var px3 := lerpf(xe, x, float(i) / n3)
+					poly.append(Vector2(px3, top - 0.1 + sin(px3 * 18.0) * 0.045 - 0.035))
+		var mi := felt_cutout(parent, poly, 0.025, Transform3D(Basis(), Vector3(0, 0, z)), col, 3.0)
+		mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if style == "scallop":
+			# the eyelets of the lace
+			var n4 := maxi(int((xe - x) / 0.3), 1)
+			var sw2 := (xe - x) / n4
+			for i in n4:
+				var e := felt_cutout(parent, circle(0.035, 8, xe - sw2 * (i + 0.5), top - 0.12), 0.01,
+					Transform3D(Basis(), Vector3(0, 0, z + 0.016)), col.darkened(0.3), 4.0)
+				e.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		x = xe
+
+## patches and buttons sewn onto the front of a long block, so it isn't bare
+static func dress_front(parent: Node3D, x0: float, x1: float, top: float, z: float, cols: Array, seed := 1.0) -> void:
+	var x := x0 + 1.2 + fposmod(seed * 3.7, 2.0)
+	var k := int(seed * 7.0)
+	while x < x1 - 1.0:
+		var r := fposmod(sin(x * 12.9898 + seed) * 43758.5453, 1.0)
+		var wd := 0.7 + r * 0.8
+		var ht := 0.5 + fposmod(r * 7.31, 1.0) * 0.6
+		var y := top - 0.55 - ht * 0.5 - fposmod(r * 3.17, 1.0) * 1.0
+		var p := block(parent, Vector3(x, y, z + 0.0), Vector3(wd, ht, 0.03), cols[k % cols.size()], CREAM, [0, 1, 2, 5][k % 4], false)
+		p.rotation.z = (r - 0.5) * 0.25
+		p.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		if k % 2 == 0:
+			var b := button(parent, Vector3(x + wd * 0.5 + 0.35, top - 0.5 - r * 0.6, z + 0.02), 0.13, [CORAL, TEAL, MUSTARD, LILAC][k % 4], r, false)
+			b.rotation = Vector3(PI * 0.5, 0, r)
+		x += 3.5 + r * 4.0
+		k += 1
+
+## a running stitch along a polyline in the XY plane (one mesh, many dashes)
+static func stitch_line(pts: PackedVector2Array, z: float, dash := 0.35, gap := 0.25, wd := 0.06, col := CREAM) -> MeshInstance3D:
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var on := true
+	var left := dash
+	for i in pts.size() - 1:
+		var a: Vector2 = pts[i]
+		var b: Vector2 = pts[i + 1]
+		var seg := a.distance_to(b)
+		var pos := 0.0
+		while pos < seg - 0.0001:
+			var stp := minf(left, seg - pos)
+			if on:
+				var p0 := a.lerp(b, pos / seg)
+				var p1 := a.lerp(b, (pos + stp) / seg)
+				var nrm := (p1 - p0).orthogonal().normalized() * wd * 0.5
+				var q := [p0 - nrm, p1 - nrm, p1 + nrm, p0 + nrm]
+				for k in [0, 1, 2, 0, 2, 3]:
+					var v: Vector2 = q[k]
+					st.set_normal(Vector3(0, 0, 1))
+					st.add_vertex(Vector3(v.x, v.y, z))
+			pos += stp
+			left -= stp
+			if left <= 0.0001:
+				on = not on
+				left = dash if on else gap
+	var mi := MeshInstance3D.new()
+	mi.mesh = st.commit()
+	var m := StandardMaterial3D.new()
+	m.albedo_color = col
+	m.roughness = 0.9
+	mi.material_override = m
+	mi.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	return mi
+
+## a tailor's tape measure pinned along a front face, with ticks and numbers
+static func tape_measure(parent: Node3D, x0: float, x1: float, y: float, z: float, start_cm := 0) -> void:
+	var tape := block(parent, Vector3((x0 + x1) * 0.5, y, z), Vector3(x1 - x0, 0.2, 0.025), Color(0.98, 0.86, 0.38), CREAM, 0, false)
+	tape.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	var st := SurfaceTool.new()
+	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var n := int((x1 - x0) / 0.1)
+	for i in n + 1:
+		var x := x0 + i * 0.1
+		var h := 0.09 if i % 10 == 0 else (0.06 if i % 5 == 0 else 0.035)
+		var q := [Vector3(x - 0.006, y + 0.1 - h, 0), Vector3(x + 0.006, y + 0.1 - h, 0), Vector3(x + 0.006, y + 0.1, 0), Vector3(x - 0.006, y + 0.1, 0)]
+		for k in [0, 2, 1, 0, 3, 2]:
+			st.set_normal(Vector3(0, 0, 1))
+			st.add_vertex(q[k] + Vector3(0, 0, z + 0.03))
+	var ticks := MeshInstance3D.new()
+	ticks.mesh = st.commit()
+	var m := StandardMaterial3D.new()
+	m.albedo_color = Color(0.25, 0.2, 0.22)
+	ticks.material_override = m
+	ticks.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	parent.add_child(ticks)
+	var cm := start_cm
+	var x2 := x0 + 1.0
+	while x2 < x1 - 0.2:
+		cm = cm % 150 + 10
+		var l := label(parent, str(cm), Vector3(x2, y - 0.04, z + 0.035), 0.0022, Color(0.25, 0.2, 0.22), 64)
+		l.shaded = false
+		x2 += 1.0

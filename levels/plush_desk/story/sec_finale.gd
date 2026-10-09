@@ -56,6 +56,7 @@ var pockets: Array = []      # {"id", "x", "node", "pull", "flap", "glow"}
 var keep_slots: Array = []   # quilt nodes per keepsake: [found_node, missing_node]
 var quilt_light: SpotLight3D
 var walls: Array = []
+var foot_mat: StandardMaterial3D
 # the run, as stitches
 var map_pts: Array = []      # [Vector2 uv] for every recorded point
 var map_t: PackedFloat32Array
@@ -93,6 +94,7 @@ func build() -> void:
 	Kit.block(root, Vector3((SX0 + SX1) * 0.5, FLOOR - 1.5, -6.4), Vector3(SX1 - SX0, 3.0, 17.0), Color(0.72, 0.5, 0.34), Color(0.62, 0.42, 0.28), 3, true)
 	# a felt skirt with bunting along the front edge
 	_bunting(Vector3(SX0 + 0.3, FLOOR - 0.05, 2.12), Vector3(SX1 - 0.3, FLOOR - 0.05, 2.12), 18)
+	_footlights()
 	w.checkpoint(Vector3(367.0, FLOOR, 0.0), 1, Kit.MUSTARD)
 	for wx: float in [SX0 + 0.8, SX1 - 0.8]:
 		var sb := StaticBody3D.new()
@@ -123,6 +125,31 @@ func _bunting(a: Vector3, b: Vector3, n: int) -> void:
 		var p := a.lerp(b, (float(i) + 0.5) / n)
 		var tri := PackedVector2Array([Vector2(-0.38, 0.0), Vector2(0.38, 0.0), Vector2(0.0, -0.6)])
 		Kit.felt_cutout(root, tri, 0.03, Transform3D(Basis(), p), cols[i % cols.size()], 3.0)
+
+## little cardboard footlights along the front edge of the stage
+func _footlights() -> void:
+	var bulb := StandardMaterial3D.new()
+	bulb.albedo_color = Color(1.0, 0.9, 0.6)
+	bulb.emission_enabled = true
+	bulb.emission = Color(1.0, 0.78, 0.4)
+	bulb.emission_energy_multiplier = 0.4
+	foot_mat = bulb
+	for i in 11:
+		var x := MID - 10.0 + i * 2.0
+		var cup := MeshInstance3D.new()
+		var cm := CylinderMesh.new(); cm.top_radius = 0.2; cm.bottom_radius = 0.14; cm.height = 0.2; cm.radial_segments = 12
+		cup.mesh = cm
+		cup.position = Vector3(x, FLOOR + 0.1, 1.8)
+		cup.rotation.x = -0.5
+		cup.material_override = Kit.card_material(0, Color(0.3, 0.22, 0.2, 0.9))
+		root.add_child(cup)
+		var b := MeshInstance3D.new()
+		var sm := SphereMesh.new(); sm.radius = 0.12; sm.height = 0.24
+		b.mesh = sm
+		b.position = Vector3(x, FLOOR + 0.2, 1.75)
+		b.material_override = bulb
+		b.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+		root.add_child(b)
 
 func _proscenium() -> void:
 	var pr := Node3D.new()
@@ -322,7 +349,7 @@ func _uv_to_local(uv: Vector2) -> Vector3:
 
 func _big_spool() -> void:
 	var n := Node3D.new()
-	n.position = Vector3(369.6, FLOOR, -2.0)
+	n.position = Vector3(371.2, FLOOR, -2.0)
 	root.add_child(n)
 	var wood := Kit.card_material(0, Color(0.78, 0.56, 0.36, 0.9))
 	for y: float in [0.08, 1.72]:
@@ -359,7 +386,7 @@ func _big_spool() -> void:
 
 func _board() -> void:
 	var n := Node3D.new()
-	n.position = Vector3(386.4, FLOOR, -2.0)
+	n.position = Vector3(384.7, FLOOR, -2.0)
 	n.rotation.y = -0.18
 	root.add_child(n)
 	for lx: float in [-1.25, 1.25]:
@@ -369,21 +396,16 @@ func _board() -> void:
 	var rows := [["SPOOLS", "spools"], ["KEEPSAKES", "keeps"], ["OOPS", "oops"]]
 	for i in rows.size():
 		var y := 3.45 - i * 0.48
-		var l := Kit.label(n, rows[i][0], Vector3(0, y, 0.25), 0.0042, Kit.CREAM, 64)
+		var l := Kit.label(n, rows[i][0], Vector3(-1.3, y, 0.25), 0.0042, Kit.CREAM, 64)
 		l.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-		l.autowrap_mode = TextServer.AUTOWRAP_OFF
-		l.width = 2.5 / 0.0042
-		var v := Kit.label(n, "", Vector3(0, y, 0.25), 0.0042, Color(1.0, 0.86, 0.5), 64)
+		var v := Kit.label(n, "", Vector3(1.3, y, 0.25), 0.0042, Color(1.0, 0.86, 0.5), 64)
 		v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-		v.width = 2.5 / 0.0042
 		board_vals[rows[i][1]] = v
 	Kit.block(n, Vector3(0, 2.13, 0.2), Vector3(2.7, 0.04, 0.02), Kit.CREAM, Kit.CREAM, 0, false)
-	var sl := Kit.label(n, "SCORE", Vector3(0, 1.75, 0.25), 0.006, Kit.CREAM, 64)
+	var sl := Kit.label(n, "SCORE", Vector3(-1.3, 1.75, 0.25), 0.006, Kit.CREAM, 64)
 	sl.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
-	sl.width = 2.5 / 0.006
-	var sv := Kit.label(n, "", Vector3(0, 1.75, 0.25), 0.0075, Color(1.0, 0.86, 0.5), 64)
+	var sv := Kit.label(n, "", Vector3(1.3, 1.75, 0.25), 0.0075, Color(1.0, 0.86, 0.5), 64)
 	sv.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-	sv.width = 2.5 / 0.0075
 	board_vals["score"] = sv
 	board_best = Kit.label(n, "Rusty's best: %d" % RUSTYS_BEST, Vector3(0, 1.38, 0.25), 0.0034, Kit.CREAM.darkened(0.1), 64)
 	board_best.modulate.a = 0.0
@@ -779,7 +801,7 @@ func _build_stitches() -> void:
 		map_t[i] = float(i) / maxf(n - 1, 1)
 	# running stitch: 9 px on, 5 px off, broken where Claude was teleported
 	var on := true
-	var left := 9.0
+	var left := 11.0
 	var px := float(STITCH_PX)
 	var cur := Vector2()
 	var start := Vector2()
@@ -799,7 +821,7 @@ func _build_stitches() -> void:
 			cur = p
 			start = p
 			on = true
-			left = 9.0
+			left = 11.0
 			continue
 		var segs: Array = []
 		if r0 != r1:
@@ -831,9 +853,9 @@ func _build_stitches() -> void:
 				left -= step
 				if left <= 0.001:
 					if on:
-						_line(img, start, np, 2.1, map_t[i], 0.0)
+						_line(img, start, np, 2.8, map_t[i], 0.0)
 					on = not on
-					left = 9.0 if on else 5.0
+					left = 11.0 if on else 6.0
 					start = np
 				if not on:
 					start = np
@@ -847,15 +869,15 @@ func _build_stitches() -> void:
 		var et: float = clampf(float(e.get("i", 0)) / maxf(n - 1, 1), 0.0, 1.0)
 		match String(e.t):
 			"spool":
-				_disc(img, uv + Vector2(0, -3.0), 3.6, et, 0.2)
+				_disc(img, uv + Vector2(0, -4.0), 4.4, et, 0.2)
 			"death":
-				_line(img, uv + Vector2(-6, -6), uv + Vector2(6, 6), 2.0, et, 0.4)
-				_line(img, uv + Vector2(-6, 6), uv + Vector2(6, -6), 2.0, et, 0.4)
+				_line(img, uv + Vector2(-8, -8), uv + Vector2(8, 8), 2.6, et, 0.4)
+				_line(img, uv + Vector2(-8, 8), uv + Vector2(8, -8), 2.6, et, 0.4)
 			"keep":
 				for k in 5:
 					var a := TAU * k / 5.0 - PI * 0.5
-					_line(img, uv, uv + Vector2(cos(a), sin(a)) * 13.0, 2.4, et, 0.6)
-				_disc(img, uv, 4.5, et, 0.6)
+					_line(img, uv, uv + Vector2(cos(a), sin(a)) * 16.0, 3.0, et, 0.6)
+				_disc(img, uv, 5.5, et, 0.6)
 		ev_list.append({"t": et, "kind": String(e.t)})
 	ev_list.sort_custom(func(a: Dictionary, b: Dictionary) -> bool: return float(a.t) < float(b.t))
 	# the choice, sewn into the gap where it was made
@@ -942,6 +964,7 @@ func _debug_phase(which: String) -> void:
 	curtain_r.scale = Vector3(0.24, 1.0, 2.4)
 	for sp in spots:
 		(sp as SpotLight3D).light_energy = 2.2
+	foot_mat.emission_energy_multiplier = 3.0
 	_build_stitches()
 	hoop_mat.set_shader_parameter("reveal", 1.0 if which != "stitch" else 0.55)
 	hoop_title.modulate.a = 1.0
@@ -963,7 +986,7 @@ func _debug_phase(which: String) -> void:
 	if which in ["tally", "badge", "quilt", "exits"]:
 		badge = attach_badge(c.rig, medal)
 	var shots := {
-		"stage": [Vector3(MID, 4.4, 14.5), Vector3(MID, 3.8, -2.0), 42.0],
+		"stage": [Vector3(MID, 5.6, 15.5), Vector3(MID, 4.6, -2.0), 44.0],
 		"stitch": [HOOP_SHOT_POS, HOOP_SHOT_LOOK, 42.0],
 		"hoop": [HOOP_SHOT_POS, HOOP_SHOT_LOOK, 42.0],
 		"tally": [Vector3(MID, 4.6, 13.5), Vector3(MID, 3.2, -1.2), 44.0],
@@ -1043,7 +1066,7 @@ func _begin() -> void:
 	var cam: Camera3D = w.get("cam")
 	_cam_pos = w.to_local(cam.global_position)
 	_cam_look = w.to_local(cam.global_position - cam.global_basis.z * 10.0)
-	_set_shot(Vector3(MID, 4.4, 14.5), Vector3(MID, 3.8, -2.0), 42.0, 2.0)
+	_set_shot(Vector3(MID, 5.6, 15.5), Vector3(MID, 4.6, -2.0), 44.0, 2.0)
 	# chapter one is done: the painting in the attic gets its star now
 	var lvl: Node = w.get("level")
 	var lid: String = lvl.get("level_id")
@@ -1063,6 +1086,8 @@ func _arrive() -> void:
 		for sp in spots:
 			var tw := (sp as SpotLight3D).create_tween()
 			tw.tween_property(sp, "light_energy", 2.2, 1.2)
+		var tw3 := root.create_tween()
+		tw3.tween_property(foot_mat, "emission_energy_multiplier", 3.0, 0.8)
 		Sound.sfx(A + "rustle.ogg", -4.0, 0.7)
 		for k in 2:
 			var cn: Node3D = [curtain_l, curtain_r][k]
@@ -1388,29 +1413,22 @@ func _take_photo() -> void:
 	pt = 0.0
 	if img == null:
 		return
-	DirAccess.make_dir_recursive_absolute("user://postcards")
-	var stamp := Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
-	img.save_png("user://postcards/first_stitches_%s.png" % stamp)
 	_show_postcard(img)
+	_save_postcard(img)
 
-func _show_postcard(img: Image) -> void:
-	postcard_layer = CanvasLayer.new()
-	postcard_layer.layer = 13
-	w.add_child(postcard_layer)
+## the postcard as a picture file: the photo in a cream border, with a caption
+func _postcard_card(img: Image, k: float, footer: String) -> PanelContainer:
 	var card := PanelContainer.new()
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = Color(0.98, 0.95, 0.88)
-	sb.set_corner_radius_all(6)
-	sb.content_margin_left = 16; sb.content_margin_right = 16
-	sb.content_margin_top = 16; sb.content_margin_bottom = 12
-	sb.shadow_color = Color(0, 0, 0, 0.3)
-	sb.shadow_size = 14
+	sb.set_corner_radius_all(int(6 * k / 0.36))
+	sb.content_margin_left = 16.0 * k / 0.36; sb.content_margin_right = 16.0 * k / 0.36
+	sb.content_margin_top = 16.0 * k / 0.36; sb.content_margin_bottom = 12.0 * k / 0.36
 	card.add_theme_stylebox_override("panel", sb)
-	postcard_layer.add_child(card)
 	var v := VBoxContainer.new()
 	card.add_child(v)
 	var small := img.duplicate() as Image
-	small.resize(int(img.get_width() * 0.36), int(img.get_height() * 0.36), Image.INTERPOLATE_BILINEAR)
+	small.resize(int(img.get_width() * k), int(img.get_height() * k), Image.INTERPOLATE_BILINEAR)
 	var tr := TextureRect.new()
 	tr.texture = ImageTexture.create_from_image(small)
 	v.add_child(tr)
@@ -1418,20 +1436,60 @@ func _show_postcard(img: Image) -> void:
 	var name: String = w.get("player_name")
 	cap.text = "%s  ·  First Stitches  ·  %d / 100" % [name, score]
 	cap.add_theme_font_override("font", Kit.FONT)
-	cap.add_theme_font_size_override("font_size", 24)
+	cap.add_theme_font_size_override("font_size", int(24 * k / 0.36))
 	cap.add_theme_color_override("font_color", Color(0.3, 0.2, 0.32))
 	cap.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	v.add_child(cap)
-	var saved := Label.new()
-	saved.text = "postcard saved"
-	saved.add_theme_font_override("font", Kit.FONT)
-	saved.add_theme_font_size_override("font_size", 16)
-	saved.add_theme_color_override("font_color", Color(0.3, 0.6, 0.62))
-	saved.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	v.add_child(saved)
+	var foot := Label.new()
+	foot.text = footer
+	foot.add_theme_font_override("font", Kit.FONT)
+	foot.add_theme_font_size_override("font_size", int(16 * k / 0.36))
+	foot.add_theme_color_override("font_color", Color(0.3, 0.6, 0.62))
+	foot.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	v.add_child(foot)
+	return card
+
+func _save_postcard(img: Image) -> void:
+	var k := 0.6
+	var sv := SubViewport.new()
+	sv.size = Vector2i(int(img.get_width() * k) + 64, int(img.get_height() * k) + 150)
+	sv.transparent_bg = false
+	sv.render_target_update_mode = SubViewport.UPDATE_ONCE
+	w.add_child(sv)
+	var bg := ColorRect.new()
+	bg.color = Color(0.32, 0.6, 0.62)
+	bg.set_anchors_preset(Control.PRESET_FULL_RECT)
+	sv.add_child(bg)
+	var d := Time.get_date_dict_from_system()
+	var card := _postcard_card(img, k, "a Plush Desk dream  ·  %02d.%02d.%d" % [int(d.day), int(d.month), int(d.year)])
+	card.position = Vector2(16, 16)
+	sv.add_child(card)
+	await RenderingServer.frame_post_draw
+	await RenderingServer.frame_post_draw
+	if not is_instance_valid(sv):
+		return
+	var out := sv.get_texture().get_image()
+	sv.queue_free()
+	if out == null:
+		return
+	DirAccess.make_dir_recursive_absolute("user://postcards")
+	var stamp := Time.get_datetime_string_from_system().replace(":", "-").replace("T", "_")
+	out.save_png("user://postcards/first_stitches_%s.png" % stamp)
+
+func _show_postcard(img: Image) -> void:
+	postcard_layer = CanvasLayer.new()
+	postcard_layer.layer = 13
+	w.add_child(postcard_layer)
+	var card := _postcard_card(img, 0.36, "postcard saved")
+	var sb := card.get_theme_stylebox("panel") as StyleBoxFlat
+	sb.shadow_color = Color(0, 0, 0, 0.3)
+	sb.shadow_size = 14
+	postcard_layer.add_child(card)
+	var small_w := int(img.get_width() * 0.36)
+	var small_h := int(img.get_height() * 0.36)
 	var vs := w.get_viewport().get_visible_rect().size
-	card.pivot_offset = Vector2(small.get_width() * 0.5 + 16, small.get_height() * 0.5 + 30)
-	card.position = Vector2(vs.x * 0.5 - card.pivot_offset.x, -small.get_height() - 120.0)
+	card.pivot_offset = Vector2(small_w * 0.5 + 16, small_h * 0.5 + 30)
+	card.position = Vector2(vs.x * 0.5 - card.pivot_offset.x, -small_h - 120.0)
 	card.rotation = -0.3
 	var tw := card.create_tween()
 	tw.tween_property(card, "position:y", vs.y * 0.5 - card.pivot_offset.y, 0.7).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)

@@ -67,6 +67,8 @@ func build() -> void:
 	strand_mat.set_shader_parameter("sheen_color", Color(1.0, 0.95, 0.8))
 	# the ground in front of the reel
 	Kit.block(root, Vector3(334.0, -1.5, 0.0), Vector3(16.0, 3.0, 4.2), Kit.SOIL, Kit.GRASS, 4, true)
+	Kit.trim(root, 326.05, 341.95, 0.0, 2.2, Kit.GRASS.darkened(0.12), "pinking")
+	Kit.dress_front(root, 326.0, 342.0, 0.0, 2.19, [Kit.SOIL.darkened(0.12), Kit.SOIL.lightened(0.1), Kit.MUSTARD.darkened(0.1)], 7.0)
 	w.checkpoint(Vector3(330.5, 0.0, 0.0), 1, Kit.LILAC)
 	w.narrate_at(331.0, "The yarn tower. Whoever wound this had a lot of patience. And a lot of yarn.", 3.6)
 	_sign()
@@ -357,26 +359,33 @@ func _pompom(u: float) -> void:
 ## felt hills all around the far side, so the camera has something to look at
 ## when it circles behind the reel
 func _panorama() -> void:
-	var cols := [Color(0.5, 0.74, 0.42), Color(0.42, 0.66, 0.5), Color(0.55, 0.62, 0.78), Color(0.7, 0.72, 0.88)]
+	# felt hills all round, except where the course runs through (towards the
+	# choice and towards the theatre, which then are the view)
+	var cols := [Color(0.5, 0.74, 0.42), Color(0.44, 0.66, 0.52), Color(0.6, 0.66, 0.82)]
+	var arcs := [[-1.22, 0.6], [2.17, 4.36]]
 	for ring in 3:
-		var R := 26.0 + ring * 12.0
-		var n := 7 + ring * 2
-		for i in n:
-			var a := lerpf(-1.1, 0.7, (float(i) + 0.5) / n)
-			var c := Vector3(TX + sin(a) * R, 0.0, TZ + cos(a) * R)
-			var poly := Kit.hills(-R * 0.22, R * 0.22, -30.0, -1.5 + ring * 4.0, 1.4 + ring, 4.0 + ring * 3.0, float(i) * 1.7 + ring)
-			var xf := Transform3D(Basis(Vector3.UP, a + PI), c)
-			Kit.felt_cutout(root, poly, 0.8, xf, cols[ring], 0.6 if ring > 0 else 0.9)
-			if ring == 0 and i % 2 == 0:
-				var tree := Node3D.new()
-				tree.transform = Transform3D(Basis(Vector3.UP, a + PI), c + Vector3(0, -1.0, 0) - Vector3(sin(a), 0, cos(a)) * 0.8)
-				root.add_child(tree)
-				Kit.felt_cutout(tree, Kit.rect(0.4, 3.0, 0, 1.5), 0.3, Transform3D(), Color(0.55, 0.38, 0.26))
-				Kit.felt_cutout(tree, Kit.blob(1.4, 24, 0.12, float(i)), 0.4, Transform3D(Basis(), Vector3(0, 3.2, 0.1)), Color(0.38, 0.62, 0.36), 1.0)
+		var R := 34.0 + ring * 13.0
+		for arc in arcs:
+			var a0: float = arc[0]
+			var a1: float = arc[1]
+			var n := int(ceilf((a1 - a0) * R / (R * 0.36)))
+			for i in n:
+				var a := lerpf(a0, a1, (float(i) + 0.5) / n)
+				var c := Vector3(TX + sin(a) * R, 0.0, TZ + cos(a) * R)
+				var half := R * 0.21
+				var poly := Kit.hills(-half, half, -30.0, -1.0 + ring * 4.5, 1.4 + ring, 4.0 + ring * 3.0, float(i) * 1.7 + ring + a0)
+				var xf := Transform3D(Basis(Vector3.UP, a + PI), c)
+				Kit.felt_cutout(root, poly, 0.8, xf, cols[ring], 0.6 if ring > 0 else 0.9)
+				if ring == 0 and i % 2 == 0:
+					var tree := Node3D.new()
+					tree.transform = Transform3D(Basis(Vector3.UP, a + PI), c + Vector3(0, -0.8, 0) - Vector3(sin(a), 0, cos(a)) * 0.8)
+					root.add_child(tree)
+					Kit.felt_cutout(tree, Kit.rect(0.4, 3.0, 0, 1.5), 0.3, Transform3D(), Color(0.55, 0.38, 0.26))
+					Kit.felt_cutout(tree, Kit.blob(1.4, 24, 0.12, float(i)), 0.4, Transform3D(Basis(), Vector3(0, 3.2, 0.1)), Color(0.38, 0.62, 0.36), 1.0)
 	for i in 4:
 		var a := -0.9 + i * 0.45
-		var c := Kit.cloud(root, Vector3(TX + sin(a) * 40.0, 18.0 + 4.0 * sin(i * 1.7), TZ + cos(a) * 40.0), 9.0, false)
-		c.scale = Vector3.ONE * 2.0
+		var c := Kit.cloud(root, Vector3(TX + sin(a) * 52.0, 20.0 + 4.0 * sin(i * 1.7), TZ + cos(a) * 52.0), 9.0, false)
+		c.scale = Vector3.ONE * 2.2
 		c.rotation.y = a + PI
 
 # ------------------------------------------------------------------ per frame
@@ -419,7 +428,7 @@ func physics(delta: float) -> void:
 	if c.is_on_floor():
 		_floor_y = lp.y
 	elif lp.y < _floor_y - 2.6:
-		w.hurt()
+		w.hurt("fall")
 
 func _set_on_tower(on: bool) -> void:
 	on_tower = on
@@ -491,7 +500,7 @@ func update(delta: float) -> void:
 			var arc := (theta / TAU - float(nd.u)) * TAU * RP
 			var ny: float = nd.y
 			if absf(arc) < 0.32 and lp.y < ny + 0.1 and lp.y + 1.0 > ny - 0.1:
-				w.hurt()
+				w.hurt("needle")
 	# bobbing buttons
 	for i in bobbers.size():
 		var body: AnimatableBody3D = bobbers[i][0]

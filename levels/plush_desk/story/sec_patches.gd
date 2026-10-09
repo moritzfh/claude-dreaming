@@ -26,6 +26,8 @@ var _said_e := false
 
 func _ground(x0: float, x1: float, top: float, col := Kit.TEAL, col2 := Kit.CREAM, pattern := 2) -> void:
 	Kit.block(root, Vector3((x0 + x1) * 0.5, top - 1.5, 0.0), Vector3(x1 - x0, 3.0, 4.2), col, col2, pattern, true)
+	Kit.trim(root, x0 + 0.05, x1 - 0.05, top, 2.2, Kit.MUSTARD, "ricrac")
+	Kit.dress_front(root, x0, x1, top, 2.19, [col.darkened(0.15), col.lightened(0.15), Kit.CREAM, Kit.CORAL], x0)
 
 func build() -> void:
 	root = Node3D.new()
@@ -39,6 +41,7 @@ func build() -> void:
 	# --- landing ground after the clouds
 	_ground(128.0, 141.0, 0.0, Color(0.36, 0.55, 0.62), Kit.CREAM, 2)
 	w.checkpoint(Vector3(132.5, 0.0, 0.0), 1, Kit.LILAC)
+	w.section_sign(Vector3(130.2, 0.0, -1.6), "MEND IT!", Kit.TEAL.darkened(0.2))
 	w.narrate_at(133.5, "In most worlds, you play the levels. In this one, you fix them. Sometimes, you make them.", 4.2)
 	# tutorial 1: a gap with a bridge outline
 	_patch(Vector3(137.6, 0.0, M), Kit.MUSTARD, 2)

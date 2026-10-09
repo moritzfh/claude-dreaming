@@ -4,8 +4,8 @@
 shader_type spatial;
 render_mode cull_back;
 
-uniform vec4 end_col : source_color = vec4(0.96, 0.9, 0.78, 1.0);
-uniform float glow = 0.25;
+uniform vec4 end_col : source_color = vec4(0.8, 0.6, 0.4, 1.0);
+uniform float glow = 0.22;
 
 varying float v_thread;
 varying vec3 v_tc;
@@ -26,11 +26,13 @@ void vertex() {
 
 void fragment() {
 	float wound = 0.5 + 0.5 * sin(v_lp.y * 260.0 + atan(v_lp.z, v_lp.x) * 2.0);
-	vec3 thread = v_tc * (0.82 + 0.25 * wound);
+	// a little richer than the instance colour, so the spools pop off the pastel world
+	vec3 tc = clamp(mix(vec3(dot(v_tc, vec3(0.333))), v_tc, 1.7), 0.0, 1.0);
+	vec3 thread = tc * (0.82 + 0.25 * wound);
 	vec3 alb = mix(end_col.rgb, thread, v_thread);
 	ALBEDO = alb;
 	ROUGHNESS = mix(0.9, 0.45, v_thread);
 	SPECULAR = mix(0.2, 0.55, v_thread);
 	float rim = pow(1.0 - clamp(dot(NORMAL, VIEW), 0.0, 1.0), 2.0);
-	EMISSION = v_tc * v_tc * (glow + rim * 0.9) * mix(0.3, 1.0, v_thread);
+	EMISSION = tc * tc * (glow + rim * 0.9) * mix(0.15, 1.0, v_thread);
 }
