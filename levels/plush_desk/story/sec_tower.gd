@@ -512,17 +512,19 @@ func update(delta: float) -> void:
 	# narration on the way up
 	if on_tower:
 		var u := theta / TAU
-		_line(u > 0.33, "up", "Up we go. Round and round. Try not to think about it.", 3.2)
-		_line(u > 0.4, "needles", "Knitting needles. They come and go. Jump them, or wait for them.", 3.4)
-		_line(u > 0.95, "pom", "A pom-pom. Bouncier than it looks. Which is very bouncy.", 3.0)
-		_line(u > 1.58, "rhythm", "The pink ones are too high to jump. Count. One, two... go.", 3.4)
-		_line(u > 1.95, "top", "The top. What a view. Now grab that button and hold on tight.", 3.4)
+		_line(u, 0.33, "up", "Up we go. Round and round. Try not to think about it.", 3.2)
+		_line(u, 0.4, "needles", "Knitting needles. They come and go. Jump them, or wait for them.", 3.4)
+		_line(u, 0.95, "pom", "A pom-pom. Bouncier than it looks. Which is very bouncy.", 3.0)
+		_line(u, 1.58, "rhythm", "The pink ones are too high to jump. Count. One, two... go.", 3.4)
+		_line(u, 1.95, "top", "The top. What a view. Now grab that button and hold on tight.", 3.4)
 	_zipline(delta, lp)
 
-func _line(cond: bool, key: String, text: String, hold: float) -> void:
-	if cond and not _said.has(key):
+## a line when Claude passes u; long past it (a pin further up), stay quiet
+func _line(u: float, at_u: float, key: String, text: String, hold: float) -> void:
+	if u > at_u and not _said.has(key):
 		_said[key] = true
-		w.narrate(text, hold)
+		if u < at_u + 0.12:
+			w.narrate(text, hold)
 
 # ------------------------------------------------------------------ the zipline
 func _zipline(delta: float, lp: Vector3) -> void:

@@ -196,6 +196,11 @@ func _label_cell(phys: int, fixed: String) -> int:
 func _input(event: InputEvent) -> void:
 	if not active:
 		return
+	# no keyboard? any gamepad button signs the book (as "Claude" if nothing was typed)
+	if typing_target != null and event is InputEventJoypadButton and (event as InputEventJoypadButton).pressed:
+		typing_target.call("type_done")
+		get_viewport().set_input_as_handled()
+		return
 	if event is InputEventKey and not event.echo:
 		var k := event as InputEventKey
 		for sgn in signs:

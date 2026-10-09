@@ -270,7 +270,8 @@ func _rollers(delta: float, lp: Vector3) -> void:
 		if r.x < mx + 0.5 or r.x < lp.x - 14.0:
 			r.on = false
 			n.visible = false
-		elif absf(lp.x - r.x) < 0.6 and absf(lp.z - n.position.z) < 0.6 and lp.y < 0.95:
+		elif absf(lp.z - n.position.z) < 0.6 and Vector2(lp.x - float(r.x), lp.y + 0.15 - 0.55).length() < 0.62:
+			# Claude's feet against the round spool: hop over it and you're fine
 			w.hurt("roller")
 
 func _unplug() -> void:

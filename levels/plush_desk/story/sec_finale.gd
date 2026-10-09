@@ -349,7 +349,7 @@ func _uv_to_local(uv: Vector2) -> Vector3:
 
 func _big_spool() -> void:
 	var n := Node3D.new()
-	n.position = Vector3(371.2, FLOOR, -2.0)
+	n.position = Vector3(371.2, FLOOR, -2.6)
 	root.add_child(n)
 	var wood := Kit.card_material(0, Color(0.78, 0.56, 0.36, 0.9))
 	for y: float in [0.08, 1.72]:
@@ -386,7 +386,7 @@ func _big_spool() -> void:
 
 func _board() -> void:
 	var n := Node3D.new()
-	n.position = Vector3(384.7, FLOOR, -2.0)
+	n.position = Vector3(384.7, FLOOR, -2.75)
 	n.rotation.y = -0.18
 	root.add_child(n)
 	for lx: float in [-1.25, 1.25]:
@@ -1066,6 +1066,10 @@ func _begin() -> void:
 	var cam: Camera3D = w.get("cam")
 	_cam_pos = w.to_local(cam.global_position)
 	_cam_look = w.to_local(cam.global_position - cam.global_basis.z * 10.0)
+	if _cam_pos.distance_to(Vector3(MID, 4.0, 8.0)) > 40.0:
+		# (a test start: the camera has not been anywhere near yet)
+		_cam_pos = Vector3(MID - 8.0, 3.0, 12.0)
+		_cam_look = Vector3(MID - 8.0, 2.0, 0.0)
 	_set_shot(Vector3(MID, 5.6, 15.5), Vector3(MID, 4.6, -2.0), 44.0, 2.0)
 	# chapter one is done: the painting in the attic gets its star now
 	var lvl: Node = w.get("level")
@@ -1383,7 +1387,8 @@ func _photo_step() -> void:
 	var cp: Vector3 = w.to_local(c.global_position)
 	_set_shot(Vector3(cp.x + 0.4, 2.7, 7.0), Vector3(cp.x - 0.1, 1.45, 0.0), 40.0, 3.0)
 	if not _photo_taken:
-		if _photo_wait == 0 and (Input.is_action_just_pressed("interact") or pt > 40.0):
+		var ff_skip := _ff != "" and _ff != "photo" and pt > 1.0
+		if _photo_wait == 0 and (Input.is_action_just_pressed("interact") or pt > 40.0 or ff_skip):
 			_photo_wait = 1
 			w.prompt("")
 			(w.get("narrator") as CanvasLayer).visible = false
@@ -1504,7 +1509,8 @@ func _show_postcard(img: Image) -> void:
 
 func _reveal_step() -> void:
 	if pt < 0.1:
-		_set_shot(Vector3(MID, 4.9, 8.6), Vector3(MID, 4.6, -3.0), 40.0, 1.5)
+		# wherever the postcard was taken: back in front of the hoop first
+		_set_shot(Vector3(MID, 4.9, 8.6), Vector3(MID, 4.6, -3.0), 40.0, 3.5)
 		var c0: Player = w.claude
 		c0.auto_target = w.g(Vector3(MID - 3.6, FLOOR, 0.0))
 	_say("before", "Every world has a world before it.", 3.2)
@@ -1524,8 +1530,8 @@ func _reveal_step() -> void:
 		hoop_sign.modulate.a = hoop_title.modulate.a
 	if pt > 4.0 and not _cam_path.has("a"):
 		# through the hoop to the quilt
-		_cam_path = {"a": _cam_pos, "b": Vector3(MID, 6.6, -4.2), "la": _cam_look, "lb": Vector3(MID, 6.6, -14.0), "dur": 6.0, "t": 0.0,
-			"fa": 40.0, "fb": 52.0}
+		_cam_path = {"a": Vector3(MID, 4.9, 8.6), "b": Vector3(MID, 6.6, -4.2), "la": Vector3(MID, 4.6, -3.0), "lb": Vector3(MID, 6.6, -14.0),
+			"dur": 6.0, "t": 0.0, "fa": 40.0, "fb": 52.0}
 	if pt > 11.0:
 		_go("quilt")
 

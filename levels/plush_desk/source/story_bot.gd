@@ -82,7 +82,7 @@ func mark(x: float) -> void:
 
 func _route() -> void:
 	# --- the book and the guestbook
-	s("until", {"f": func() -> bool: return c.control_enabled and c.is_on_floor(), "timeout": 12.0})
+	s("until", {"f": func() -> bool: return bool(story.get("active")) and lp().y < 0.5 and c.control_enabled and c.is_on_floor(), "timeout": 15.0})
 	go(5.6)
 	s("tap", {"a": "interact"})
 	s("until", {"f": func() -> bool: return story.get("typing_target") != null, "timeout": 3.0})
@@ -103,7 +103,7 @@ func _route() -> void:
 	go(59.4)
 	go(61.2, {"lane": 1})
 	s("until", {"f": func() -> bool: return c.is_on_floor() and lp().y < 0.5, "timeout": 4.0})
-	go(73.0, {"jumps": [[60.9, 0.2], [63.5, 0.2], [66.0, 0.2], [68.5, 0.2], [71.0, 0.25]]})
+	go(73.0, {"jumps": [[60.8, 0.2], [63.1, 0.2], [65.6, 0.2], [68.1, 0.2], [70.6, 0.25]]})
 	mark(74.0)
 	# --- cotton clouds
 	go(81.0, {"jumps": [[79.2, 0.1]]})
@@ -244,6 +244,13 @@ func _next() -> void:
 func _physics_process(delta: float) -> void:
 	if _done:
 		return
+	if not is_instance_valid(story):
+		# "play it again": a fresh world
+		story = lvl.get("story")
+		_log("the story was restarted: %s, Claude at %s" % [str(story.get("active")), str(lp())])
+		_done = true
+		get_tree().create_timer(2.0).timeout.connect(get_tree().quit)
+		return
 	t += delta
 	if t > 1500.0:
 		_log("GAVE UP at step %d" % i)
@@ -257,6 +264,8 @@ func _physics_process(delta: float) -> void:
 		_log_t = 2.0
 		var fin: Object = sec("finale")
 		var pa: Object = sec("patches")
+		if OS.get_cmdline_user_args().has("--pd_bot_debug"):
+			_log("control %s auto %s v %s" % [str(c.control_enabled), str(c.auto_target), str(c.velocity)])
 		_log("step %d %s  pos (%.1f, %.1f, %.1f) lane %d  spools %d  deaths %d  %s  carry %s sew %.1f  keep %s" % [i, steps[mini(i, steps.size() - 1)].t, p.x, p.y, p.z,
 			int(story.get("lane")), int(story.get("spools")), int(story.get("deaths")), String(fin.get("phase")) if fin else "",
 			str(not (pa.get("carried") as Dictionary).is_empty()), float(pa.get("_sew_t")), str(story.get("keepsakes"))])
@@ -324,8 +333,17 @@ func _physics_process(delta: float) -> void:
 			_want("jump")
 			_next()
 		"type":
-			_type(String(stp.text))
-			_next()
+			# one letter every 0.18 s, like a person typing
+			var txt := String(stp.text)
+			var n := int(st / 0.18)
+			var typed: int = stp.get("typed", 0)
+			while typed < mini(n, txt.length()):
+				_type_key(txt[typed])
+				typed += 1
+			stp["typed"] = typed
+			if typed >= txt.length() and st > 0.18 * txt.length() + 0.5:
+				_type_key("\n")
+				_next()
 		"chase":
 			_chase(p)
 		"tower":
@@ -384,6 +402,19 @@ func _jump_holding(stp: Dictionary) -> bool:
 		if _jumped.has(key) and st - float(_jumped[key]) < float(j[1]):
 			return true
 	return false
+
+func _type_key(ch: String) -> void:
+	var ev := InputEventKey.new()
+	ev.pressed = true
+	if ch == "\n":
+		ev.keycode = KEY_ENTER
+	else:
+		ev.unicode = ch.unicode_at(0)
+		ev.keycode = OS.find_keycode_from_string(ch.to_upper())
+	Input.parse_input_event(ev)
+	var up := ev.duplicate() as InputEventKey
+	up.pressed = false
+	Input.parse_input_event(up)
 
 func _type(text: String) -> void:
 	for ch in text:
@@ -468,6 +499,8 @@ func _tower(p: Vector3) -> void:
 							go_on = false
 				else:
 					if (k > 0.2 or ph < 0.2) and arc < 1.15 and arc > 0.6 and c.is_on_floor():
+						jump = true
+					elif k > 0.05 and arc <= 0.6 and c.is_on_floor():
 						jump = true
 	if go_on and on and c.is_on_floor() and c.velocity.length() < 0.5:
 		_blocked += get_physics_process_delta_time()

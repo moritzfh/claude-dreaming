@@ -144,7 +144,9 @@ func build() -> void:
 		if a == "--pd_state=plugged":
 			call_deferred("_skip_to_plugged")
 	if _story_start != "":
-		call_deferred("enter_story", float(_story_start))
+		# test starts: once the glide in from the painting is over (it hands
+		# control back to Claude when it ends)
+		intro_finished.connect(func() -> void: enter_story(float(_story_start)), CONNECT_ONE_SHOT)
 	intro_finished.connect(_on_intro)
 
 func _glb_mesh(file: String) -> Mesh:
