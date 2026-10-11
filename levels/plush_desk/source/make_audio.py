@@ -34,8 +34,11 @@ def mono(x):
     return np.stack([x, x], axis=1)
 
 
+SFX_TRIM = 0.62      # all effects sit about 4 dB under their nominal peak, so they never pile up into clipping
+
+
 def norm(x, peak=0.8):
-    return x / (np.abs(x).max() + 1e-9) * peak
+    return x / (np.abs(x).max() + 1e-9) * peak * SFX_TRIM
 
 
 # ------------------------------------------------------------------ music
@@ -88,7 +91,7 @@ def music():
                 if rep == 1:
                     tr.add(t0 + st * BEAT, glock(midi(n) + 12, 0.22), 0.35, 1.0)
     x = make_loop(tr, length, wet=0.35, seconds=3.5)
-    ogg('lullaby', master(x, 0.09), 4)
+    ogg('lullaby', master(x, 0.065), 4)
 
 
 # ------------------------------------------------------------------ sfx
@@ -103,7 +106,7 @@ def squish():
 def twinkle():
     a, b = celesta('C6', 0.6, 0.8), glock('C7', 0.2)
     n = min(len(a), len(b), int(1.6 * SR))
-    ogg('twinkle', mono(norm(a[:n] + b[:n], 0.7)))
+    ogg('twinkle', mono(norm(a[:n] + b[:n], 0.55)))
 
 
 def creak():
@@ -181,14 +184,14 @@ def wiggle():
 
 
 def murmur():
-    """the narrator's placeholder voice: one soft hummed syllable"""
-    t = t_arr(0.16)
-    f0 = 165.0
-    ph = np.cumsum(f0 * (1.0 + 0.06 * np.sin(2 * np.pi * 7 * t))) / SR
-    src = 2 * ((ph % 1.0) < 0.35) - 1.0
-    v = bp(src, 300, 900) * 0.8 + bp(src, 1000, 1500) * 0.35 + bp(src, 2300, 2800) * 0.08
-    env = np.sin(np.pi * np.clip(t / 0.16, 0, 1)) ** 1.5
-    ogg('murmur', mono(norm(lp(v, 3000) * env, 0.5)))
+    """the narrator's placeholder voice: one soft, closed-mouth "hm" """
+    t = t_arr(0.15)
+    f0 = 150.0 * (1.0 + 0.012 * np.sin(2 * np.pi * 5.5 * t)) * (1.0 - 0.05 * t / 0.15)
+    ph = 2 * np.pi * np.cumsum(f0) / SR
+    v = np.sin(ph) + 0.32 * np.sin(2 * ph + 0.4) + 0.1 * np.sin(3 * ph + 1.1) + 0.03 * np.sin(4 * ph)
+    breath = lp(R.standard_normal(len(t)), 900) * np.exp(-t / 0.02) * 0.08
+    env = np.clip(t / 0.025, 0, 1) * np.exp(-np.maximum(t - 0.03, 0) / 0.06)
+    ogg('murmur', mono(norm(lp(v * env + breath, 1400), 0.45)))
 
 
 def hum():
@@ -220,7 +223,7 @@ def chime():
         tr.add(i * 0.09, celesta(n, 0.8, 0.6), -0.3 + i * 0.2)
         tr.add(i * 0.09, glock(n, 0.25), 0.3 - i * 0.2)
     x = apply_reverb(tr.buf[: int(3.0 * SR)], 0.4, 2.5)
-    ogg('chime', norm(x, 0.7))
+    ogg('chime', norm(x, 0.6))
 
 
 if __name__ == '__main__':

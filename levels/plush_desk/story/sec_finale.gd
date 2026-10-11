@@ -1364,10 +1364,9 @@ func _badge_step() -> void:
 		if st < 1.2 and int(st * 10.0) != int((st - 0.016) * 10.0):
 			Sound.sfx(A + "click.ogg", -12.0, randf_range(1.8, 2.4))
 		if st > 0.5:
-			var lines := {"gold": "Gold. Sewn on for good. I'm not crying, you're crying.",
+			_say("medal", {"gold": "Gold. Sewn on for good. I'm not crying, you're crying.",
 				"silver": "Silver. Shiny, and a little room to grow.",
-				"bronze": "Bronze. Every maker starts somewhere. This is somewhere."}
-			_say("medal", lines[medal], 3.4)
+				"bronze": "Bronze. Every maker starts somewhere. This is somewhere."}[medal], 3.4)
 		if st > 3.8 and not _said.has("rusty"):
 			_said["rusty"] = true
 			if score > RUSTYS_BEST:

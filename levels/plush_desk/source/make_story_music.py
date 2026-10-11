@@ -198,7 +198,7 @@ def story():
                     tr.add(t0 + 3.5 * b, snare(0.5), 0.0, 1.0)
             k += 1
     x = make_loop(tr, length, wet=0.22, seconds=2.2)
-    ogg('story', master(x, 0.1))
+    ogg('story', master(x, 0.068))
 
 
 # ------------------------------------------------------------------ the chase
@@ -249,7 +249,7 @@ def chase():
         if i < 8 and i % 4 == 2:
             mel(tr, t0, b, [('E6', 0, .5), ('D#6', .5, .5), ('E6', 1, .5), ('B5', 1.5, .5)], lambda n, d: celesta(n, d, 0.4), 0.2)
     x = make_loop(tr, length, wet=0.15, seconds=1.6)
-    ogg('chase', master(x, 0.11))
+    ogg('chase', master(x, 0.075))
 
 
 # ------------------------------------------------------------------ the tower
@@ -291,7 +291,7 @@ def tower():
             mel(tr, t0, b, lead[i], lambda n, d: strings(n, d * 0.95, 0.5, 0.15, 0.5, 2400), 0.1)
             mel(tr, t0, b, lead[i], lambda n, d: glock(n, 0.3), -0.2)
     x = make_loop(tr, length, wet=0.3, seconds=2.6)
-    ogg('tower', master(x, 0.1))
+    ogg('tower', master(x, 0.068))
 
 
 # ------------------------------------------------------------------ the theatre (waltz)
@@ -327,7 +327,7 @@ def finale():
             mel(tr, t0, b, melody[i], lambda n, d: glock(midi(n) - 12, 0.25), 0.25)
         tr.add(t0, shaker(0.08), 0.4, 1.0)
     x = make_loop(tr, length, wet=0.35, seconds=3.0)
-    ogg('finale', master(x, 0.085))
+    ogg('finale', master(x, 0.062))
 
 
 # ------------------------------------------------------------------ the quilt
@@ -364,7 +364,7 @@ def quilt():
         if i >= 8:
             mel(tr, t0, b, melody[i], lambda n, d: glock(midi(n) + 12, 0.12), 0.3)
     x = make_loop(tr, length, wet=0.45, seconds=4.0)
-    ogg('quilt', master(x, 0.075))
+    ogg('quilt', master(x, 0.058))
 
 
 # ------------------------------------------------------------------ curtains up
@@ -385,7 +385,7 @@ def fanfare():
     strum(tr, t1, UKE['G'], True, 0.4, 1.5, 0.2, 0.996)
     tr.add(t1, pluck('G2', 2.0, 0.8, 0.997), 0.0, 1.0)
     x = apply_reverb(tr.buf[: int(4.6 * SR)], 0.3, 2.4)
-    ogg('fanfare', master(x, 0.12))
+    ogg('fanfare', master(x, 0.08))
 
 
 if __name__ == '__main__':
