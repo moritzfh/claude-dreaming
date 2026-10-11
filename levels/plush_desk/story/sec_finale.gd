@@ -1010,7 +1010,7 @@ func _debug_phase(which: String) -> void:
 	_cam_pos = sh[0]
 	_cam_look = sh[1]
 	_set_shot(sh[0], sh[1], sh[2], 50.0)
-	(w.get("cam") as Camera3D).fov = sh[2]
+	w.set("_fov", sh[2])
 
 func update(delta: float) -> void:
 	var lp: Vector3 = w.claude_local()
@@ -1047,6 +1047,8 @@ func update(delta: float) -> void:
 func _go(p: String) -> void:
 	phase = p
 	pt = 0.0
+	# a 9:16 frame (--pd_capture=tall) opens up for the wide set pieces
+	w.set("tall_w", {"tally": 1.3, "reveal": 1.5, "quilt": 1.5, "exits": 1.5}.get(p, 1.08))
 
 func _say(key: String, text: String, hold := 3.2) -> void:
 	if not _said.has(key):

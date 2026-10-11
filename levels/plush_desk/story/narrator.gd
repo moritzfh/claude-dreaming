@@ -13,6 +13,8 @@ const FONT := preload("res://levels/plush_desk/fonts/Fredoka-Bold.woff2")
 
 var panel: PanelContainer
 var text_label: Label
+var who: Label
+var style: StyleBoxFlat
 var _queue: Array = []
 var _cur := ""
 var _shown := 0.0
@@ -34,6 +36,7 @@ func _ready() -> void:
 	add_child(root)
 	panel = PanelContainer.new()
 	var sb := StyleBoxFlat.new()
+	style = sb
 	sb.bg_color = Color(0.95, 0.88, 0.74, 0.96)
 	sb.border_color = Color(0.86, 0.45, 0.38)
 	sb.set_border_width_all(5)
@@ -53,7 +56,7 @@ func _ready() -> void:
 	root.add_child(panel)
 	var v := VBoxContainer.new()
 	panel.add_child(v)
-	var who := Label.new()
+	who = Label.new()
 	who.text = "THE NARRATOR"
 	who.add_theme_font_override("font", FONT)
 	who.add_theme_font_size_override("font_size", 15)
@@ -71,6 +74,25 @@ func _ready() -> void:
 	voice.bus = "SFX"
 	voice.volume_db = 1.0
 	add_child(voice)
+
+## for a 9:16 video: everything bigger (with the project's 1920 wide canvas
+## the normal ribbon would be tiny on an upright phone), a little left of
+## centre and higher up, clear of the title and buttons a video app puts on top
+func set_tall() -> void:
+	var u := get_viewport().get_visible_rect().size.x / 1920.0    # canvas units per 1920
+	var k := 1.9 * u
+	style.set_border_width_all(int(5 * k))
+	style.set_corner_radius_all(int(26 * k))
+	style.content_margin_left = 34 * k; style.content_margin_right = 34 * k
+	style.content_margin_top = 14 * k; style.content_margin_bottom = 16 * k
+	style.shadow_size = int(10 * k)
+	who.add_theme_font_size_override("font_size", int(15 * k))
+	text_label.add_theme_font_size_override("font_size", int(30 * k))
+	text_label.custom_minimum_size = Vector2(1300 * u, 0)
+	panel.custom_minimum_size = Vector2(1430 * u, 0)
+	panel.anchor_left = 0.445; panel.anchor_right = 0.445
+	panel.anchor_top = 0.765; panel.anchor_bottom = 0.765
+	panel.offset_bottom = 0.0
 
 ## the file name (without extension) a recorded line is looked up under
 static func voice_key(text: String, player_name := "") -> String:

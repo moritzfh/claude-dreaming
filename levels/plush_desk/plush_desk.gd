@@ -10,7 +10,9 @@
 ## --pd_capture=wide|tall (fixed cameras for 16:9 / 9:16 clips),
 ## --pd_type (fake typing on the keyboard), --pd_focus=<m>, --pd_nodof,
 ## --pd_state=plugged (start plugged in), --pd_quiet (no hints or lines),
-## --pd_test=dive|unplug (with --pd_auto: dives in / unplugs by itself).
+## --pd_test=dive|unplug|story (with --pd_auto: dives in / unplugs / spins to
+## STORY and dives into it by itself), --pd_nomusic (music muted, for clips
+## that get their own soundtrack).
 extends DreamLevel
 
 const Cardboard := preload("res://levels/plush_desk/cardboard_claude.gd")
@@ -76,6 +78,10 @@ func build() -> void:
 		if a.begins_with("--pd_capture="): _capture = a.substr(13)
 		if a == "--pd_type": _fake_type = true
 		if a == "--pd_quiet": _quiet = true
+		if a == "--pd_nomusic":
+			Settings._ensure_buses()
+			AudioServer.set_bus_mute(AudioServer.get_bus_index("Music"), true)
+			tree_exiting.connect(func() -> void: AudioServer.set_bus_mute(AudioServer.get_bus_index("Music"), Settings.music <= 0.001))
 		if a.begins_with("--pd_test="): _test = a.substr(10)
 		if a == "--pd_story": _story_start = "0"
 		if a.begins_with("--pd_story_x="): _story_start = a.substr(13)
@@ -538,6 +544,11 @@ func _plugged(delta: float) -> void:
 	if _auto:
 		inp = 0.6 if fmod(_st, 9.0) < 4.0 else 0.0
 		_zoom_t = 0.15 + 0.5 * smoothstep(4.0, 7.0, fmod(_st, 9.0))
+		if _test == "story" and _st > 1.2:
+			# spin on to the STORY planet, zoom in on it, dive
+			var on_story: bool = mobile.planets[_front].id == "story"
+			inp = 0.0 if on_story else 0.8
+			_zoom_t = 0.55 if on_story else 0.15
 	var target_spin := inp * 1.1 + _spin_in / maxf(delta, 0.001) * 0.6
 	_spin_in = 0.0
 	mobile.spin = lerpf(mobile.spin, clampf(target_spin, -3.0, 3.0), 1.0 - exp(-4.0 * delta))
@@ -555,7 +566,11 @@ func _plugged(delta: float) -> void:
 	if Input.is_action_just_pressed("respawn"):
 		_start_unplug()
 	# test runs: --pd_test=dive / --pd_test=unplug
-	if _test != "" and _st > 3.0 and state == S.PLUGGED:
+	if _test == "story" and _st > 3.2 and state == S.PLUGGED:
+		if mobile.planets[_front].id == "story" and absf(mobile.spin) < 0.3 and _zoom > 0.4:
+			_test = ""
+			_dive()
+	elif _test != "" and _test != "story" and _st > 3.0 and state == S.PLUGGED:
 		if _test == "dive": _dive()
 		else:
 			_test = ""

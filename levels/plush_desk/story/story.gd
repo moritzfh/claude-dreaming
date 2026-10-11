@@ -96,6 +96,16 @@ var jump_velocity := 6.8
 var signs: Array = []          # felt key signs that press with the real keys
 var _sign_mat: ShaderMaterial
 var _prompt := ""
+## --pd_capture=tall: framed for a 9:16 video (a phone held upright): the
+## camera keeps its width, the narrator and the counter are bigger and sit
+## clear of the buttons a video app puts on top
+var tall := false
+var _fov := 38.0
+var _count_panel: Control
+var _tall_done := false
+const TALL_W := 1.08           # width of the tall frame, in units of the normal frame's height
+var tall_w := TALL_W           # sections can widen it for a wide set piece (the quilt)
+var _tall_w := TALL_W
 
 func setup(lvl: Node3D) -> void:
 	level = lvl
@@ -103,6 +113,7 @@ func setup(lvl: Node3D) -> void:
 	position = ORIGIN
 	process_physics_priority = 100
 	visible = false
+	tall = OS.get_cmdline_user_args().has("--pd_capture=tall")
 	_build_env()
 	_build_backdrop()
 	spool_mm = MultiMesh.new()
@@ -133,6 +144,8 @@ func _before_physics() -> void:
 
 # ------------------------------------------------------------------ helpers for sections
 func prompt(text: String) -> void:
+	if tall:
+		text = ""
 	if text != _prompt:
 		_prompt = text
 		if level and level.get("hud"):
@@ -559,6 +572,7 @@ func _build_hud() -> void:
 	sb.content_margin_top = 8; sb.content_margin_bottom = 10
 	panel.add_theme_stylebox_override("panel", sb)
 	panel.position = Vector2(32, 26)
+	_count_panel = panel
 	hud.add_child(panel)
 	var h := HBoxContainer.new()
 	h.add_theme_constant_override("separation", 14)
@@ -590,6 +604,12 @@ func start() -> void:
 		(l as Light3D).visible = true
 	narrator.visible = true
 	hud.visible = true
+	if tall and not _tall_done:
+		_tall_done = true
+		narrator.call("set_tall")
+		var u := get_viewport().get_visible_rect().size.x / 1920.0
+		_count_panel.scale = Vector2.ONE * 1.9 * u
+		_count_panel.position = Vector2(70, 230) * u
 	set_process(true)
 	set_physics_process(true)
 	cam.make_current()
@@ -912,7 +932,14 @@ func _update_camera(delta: float) -> void:
 			p += Vector3(randf_range(-1, 1), randf_range(-1, 1), 0.0) * _shake * 0.25
 		cam.global_transform = Transform3D(Basis.looking_at(g(_cam_look) - p, Vector3.UP), p)
 		focus = cam.global_position.distance_to(claude.global_position + Vector3(0, 0.6, 0))
-	cam.fov = lerpf(cam.fov, cam_fov, 1.0 - exp(-3.0 * delta))
+	_fov = lerpf(_fov, cam_fov, 1.0 - exp(-3.0 * delta))
+	if tall:
+		# same height of view as the wide frame, a narrower width
+		_tall_w = lerpf(_tall_w, tall_w, 1.0 - exp(-2.0 * delta))
+		cam.keep_aspect = Camera3D.KEEP_WIDTH
+		cam.fov = rad_to_deg(2.0 * atan(tan(deg_to_rad(_fov) * 0.5) * _tall_w))
+	else:
+		cam.fov = _fov
 	cam_attr.dof_blur_near_distance = focus * 0.45
 	cam_attr.dof_blur_near_transition = focus * 0.3
 	cam_attr.dof_blur_far_distance = focus * 1.25

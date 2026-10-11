@@ -251,6 +251,8 @@ func _physics_process(delta: float) -> void:
 		_done = true
 		get_tree().create_timer(2.0).timeout.connect(get_tree().quit)
 		return
+	if not story.get("active"):
+		return            # still at the desk (a recording that starts there)
 	t += delta
 	if t > 1500.0:
 		_log("GAVE UP at step %d" % i)
