@@ -81,7 +81,7 @@ var _cam_k := 4.0
 var _cam_path := {}          # an optional straight move: {"a", "b", "la", "lb", "dur", "t"}
 var _said := {}
 var _exit_busy := false
-var _ff := ""                # test runs: fast-forward to this phase
+var _ff := ""                # test runs: fast-forward to this phase (or to these: --pd_ff=badge,reveal,quilt)
 
 func build() -> void:
 	for a in OS.get_cmdline_user_args():
@@ -784,6 +784,16 @@ func _demo_run() -> void:
 		w.set("choice", "castle")
 	if String(w.get("player_name")) == "Claude":
 		w.set("player_name", "Rusty")
+	if OS.get_cmdline_user_args().has("--pd_perfect"):
+		# recordings: a golden run (every keepsake, no tumble, nine spools in ten)
+		var clean: Array = []
+		for e in events:
+			if String(e.t) != "death":
+				clean.append(e)
+		w.set("events", clean)
+		w.set("spools", int(round((w.get("spool_pos") as Array).size() * 0.9)))
+		w.set("keepsakes", [true, true, true])
+		w.set("deaths", 0)
 
 func _build_stitches() -> void:
 	if (w.get("path") as Array).size() < 200:
@@ -1017,7 +1027,7 @@ func update(delta: float) -> void:
 	var c: Player = w.claude
 	pt += delta
 	if _ff != "" and phase != "wait":
-		Engine.time_scale = 1.0 if phase == _ff else 6.0
+		Engine.time_scale = 1.0 if phase in _ff.split(",") else 6.0
 	_update_fly(delta)
 	match phase:
 		"wait":
@@ -1388,7 +1398,7 @@ func _photo_step() -> void:
 	var cp: Vector3 = w.to_local(c.global_position)
 	_set_shot(Vector3(cp.x + 0.4, 2.7, 7.0), Vector3(cp.x - 0.1, 1.45, 0.0), 40.0, 3.0)
 	if not _photo_taken:
-		var ff_skip := _ff != "" and _ff != "photo" and pt > 1.0
+		var ff_skip := _ff != "" and not ("photo" in _ff.split(",")) and pt > 1.0
 		if _photo_wait == 0 and (Input.is_action_just_pressed("interact") or pt > 40.0 or ff_skip):
 			_photo_wait = 1
 			w.prompt("")

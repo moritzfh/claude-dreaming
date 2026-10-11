@@ -105,6 +105,7 @@ var _count_panel: Control
 var _tall_done := false
 const TALL_W := 1.08           # width of the tall frame, in units of the normal frame's height
 var tall_w := TALL_W           # sections can widen it for a wide set piece (the quilt)
+var cam_ahead := 0.0           # sections can shift the follow camera along the course (m)
 var _tall_w := TALL_W
 
 func setup(lvl: Node3D) -> void:
@@ -914,7 +915,7 @@ func _update_camera(delta: float) -> void:
 			_ground_y = lerpf(_ground_y, minf(lp.y, _ground_y + 4.0), 1.0 - exp(-1.5 * delta))
 			if lp.y < _ground_y - 0.5:
 				_ground_y = lerpf(_ground_y, lp.y, 1.0 - exp(-6.0 * delta))
-		var ahead := clampf(claude.velocity.x * 0.35, -2.2, 2.2)
+		var ahead := clampf(claude.velocity.x * 0.35, -2.2, 2.2) + cam_ahead
 		var mid_z: float = LANES[1]
 		target_look = Vector3(lp.x + ahead, _ground_y + 0.9, mid_z - 0.4)
 		target_pos = Vector3(lp.x + ahead, _ground_y + cam_height, mid_z + cam_dist)

@@ -199,6 +199,7 @@ func _route() -> void:
 	go(TX + 4.0)
 	s("until", {"f": func() -> bool: return c.is_on_floor(), "timeout": 3.0})
 	s("tap", {"a": "interact"})
+	mark(367.0)           # test starts on the stage (--pd_story_x=368 --pd_bot_from=367)
 	s("until", {"f": func() -> bool: return String(sec("finale").get("phase")) != "wait", "timeout": 20.0})
 	# --- the finale
 	s("until", {"f": func() -> bool: return String(sec("finale").get("phase")) == "photo", "timeout": 60.0})

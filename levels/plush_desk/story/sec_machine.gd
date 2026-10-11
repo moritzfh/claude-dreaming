@@ -213,6 +213,10 @@ func update(delta: float) -> void:
 			mx += _speed * delta
 		if lp.x < mx + 0.45 and lp.x > mx - 7.0 and lp.y < 3.4:
 			w.hurt("machine")
+		if w.get("tall"):
+			# an upright frame is narrow: keep the machine in it, behind Claude
+			w.set("tall_w", 1.45)
+			w.set("cam_ahead", clampf((mx - lp.x) * 0.5, -4.5, 0.0))
 	# animate the machine
 	machine.position.x = mx
 	var stamp := absf(sin(w.t * (16.0 if running else 2.0)))
@@ -290,6 +294,8 @@ func _unplug() -> void:
 	w.shake(0.2)
 	w.set("cam_dist", 9.8)
 	w.set("cam_fov", 38.0)
+	w.set("tall_w", 1.08)
+	w.set("cam_ahead", 0.0)
 	w.narrate("Peace and quiet. Nobody saw that.", 2.8)
 	w.checkpoint(Vector3(X_PLUG + 3.0, 0.0, 0.0), 1, Kit.LILAC)
 
