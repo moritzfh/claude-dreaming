@@ -20,6 +20,30 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', '..', '..', 'tools', 'audio'))
 from synth import *
 
+# Gentler versions of the bright instruments: everything above the top of the
+# treble staff goes down an octave, the metal is quieter and filtered. (The
+# first mix had glockenspiel and whistle up around 1.5 kHz and above, piercing
+# on phone speakers and headphones.)
+_glock, _celesta, _noise_hit = glock, celesta, noise_hit
+
+
+def glock(n, vel=0.5):
+    m = midi(n)
+    while m > 79:
+        m -= 12
+    return lp(_glock(m, vel * 0.5), 3200)
+
+
+def celesta(n, dur=1.2, vel=0.6):
+    m = midi(n)
+    while m > 81:
+        m -= 12
+    return lp(_celesta(m, dur, vel * 0.8), 4200)
+
+
+def noise_hit(dur=0.06, fc=7000, vel=0.3):
+    return _noise_hit(dur, min(fc, 5000), vel * 0.45)
+
 OUT = os.path.join(HERE, '..', 'audio')
 TMP = os.path.join(HERE, '_build')
 os.makedirs(TMP, exist_ok=True)
@@ -57,8 +81,8 @@ def clap(vel=0.5):
         i = int(d * SR)
         n = R.standard_normal(len(t) - i)
         x[i:] += n * np.exp(-np.arange(len(t) - i) / SR / (0.008 if k < 2 else 0.07))
-    x = bp(x, 900, 5000)
-    return x * vel * 0.6
+    x = bp(x, 800, 3500)
+    return x * vel * 0.45
 
 
 def snare(vel=0.5):
@@ -69,6 +93,7 @@ def snare(vel=0.5):
 
 
 def shaker(vel=0.25):
+    vel *= 0.55
     t = t_arr(0.08)
     x = hp(R.standard_normal(len(t)), 6000) * np.minimum(1, t / 0.012) * np.exp(-t / 0.025)
     return x * vel
@@ -87,8 +112,10 @@ def crash(vel=0.3, dur=2.2):
 
 
 def whistle(n, dur, vel=0.5):
-    """a whistled note: a pure tone with breath and a little vibrato"""
-    f = hz(n)
+    """a whistled note: a pure tone with breath and a little vibrato (an octave
+    lower than written: a high whistle is piercing)"""
+    f = hz(midi(n) - 12)
+    vel *= 0.75
     L = dur + 0.12
     t = t_arr(L)
     vib = 1 + 0.006 * np.sin(2 * np.pi * 5.6 * t) * np.clip((t - 0.12) * 4, 0, 1)
