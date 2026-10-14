@@ -14,65 +14,99 @@ numpy synth (tools/audio/synth.py).
 Run from the repo root:  python3 levels/plush_desk/source/make_story_music.py [name …]
 (needs numpy, scipy, soundfile and ffmpeg on the PATH)
 """
-import os, sys, subprocess
+import os, re, sys, subprocess
 import numpy as np
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.join(HERE, '..', '..', '..', 'tools', 'audio'))
 from synth import *
 
-# Gentler versions of the bright instruments: everything above the top of the
-# treble staff goes down an octave, the metal is quieter and filtered. (The
-# first mix had glockenspiel and whistle up around 1.5 kHz and above, piercing
-# on phone speakers and headphones.)
-_glock, _celesta, _noise_hit = glock, celesta, noise_hit
+OUT = os.path.join(HERE, '..', 'audio')
+TMP = os.path.join(HERE, '_build')
+os.makedirs(TMP, exist_ok=True)
+R = np.random.default_rng(23)
+
+# ------------------------------------------------------------------ instruments
+# Real, sampled instruments (Versilian Community Sample Library, CC0, picked
+# by make_samples.py into source/samples/): vibraphone, glockenspiel,
+# strumstick, harp, ocarina, upright piano and percussion. Only the strings
+# and pads stay synthesised. (The first versions were all synthesised and
+# sounded harsh.)
+import soundfile as _sf
+_SAMPLES = os.path.join(HERE, 'samples')
+_cache = {}
+NAMES = {'C': 0, 'Cs': 1, 'D': 2, 'Ds': 3, 'E': 4, 'F': 5, 'Fs': 6, 'G': 7, 'Gs': 8, 'A': 9, 'As': 10, 'B': 11}
+GAIN = {'vibes': 0.42, 'glock': 0.16, 'strum': 0.42, 'harp': 0.55, 'ocarina': 0.30, 'piano': 0.40,
+        'kick': 0.55, 'clap': 0.22, 'shaker': 0.10, 'wood': 0.30, 'snare': 0.30}
+
+
+def _bank(inst):
+    if inst not in _cache:
+        d = os.path.join(_SAMPLES, inst)
+        bank = []
+        for f in sorted(os.listdir(d)):
+            tmp = os.path.join(TMP, '_s.wav')
+            subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', os.path.join(d, f), '-ar', str(SR), '-ac', '1', tmp], check=True)
+            x, _ = _sf.read(tmp)
+            k = f[:-4]
+            m = re.match(r'([A-G]s?)(\d)$', k)
+            note = 12 * (int(m.group(2)) + 1) + NAMES[m.group(1)] if m else None
+            bank.append((note, x))
+        _cache[inst] = bank
+    return _cache[inst]
+
+
+def sample(inst, n=None, dur=None, vel=0.5, rel=0.25):
+    """one note (or hit) of a sampled instrument, pitch-shifted from the nearest sample"""
+    bank = _bank(inst)
+    if n is None or bank[0][0] is None:
+        x = bank[R.integers(len(bank))][1].copy()
+    else:
+        m = midi(n)
+        base, x = min(bank, key=lambda b: (abs(b[0] - m), b[0] > m))
+        ratio = 2 ** ((m - base) / 12.0)
+        if abs(ratio - 1) > 1e-4:
+            idx = np.arange(0, len(x) - 1, ratio)
+            x = np.interp(idx, np.arange(len(x)), x)
+    if dur is not None:
+        L = int((dur + rel) * SR)
+        if L < len(x):
+            x = x[:L].copy()
+            f = min(int(rel * SR), len(x))
+            x[-f:] *= np.linspace(1, 0, f)
+    return x * vel * GAIN[inst]
 
 
 def glock(n, vel=0.5):
     m = midi(n)
-    while m > 79:
+    while m > 91:
         m -= 12
-    return lp(_glock(m, vel * 0.5), 3200)
+    return sample('glock', m, None, vel)
 
 
 def celesta(n, dur=1.2, vel=0.6):
     m = midi(n)
     while m > 81:
         m -= 12
-    return lp(_celesta(m, dur, vel * 0.38), 4200)
-
-
-_pluck = pluck
+    return sample('vibes', m, dur + 0.9, vel)
 
 
 def pluck(n, dur=1.5, vel=0.5, damp=0.996):
-    """plucked strings; low notes (the bass) get a round, soft upright-bass
-    tone instead of the buzzy string model"""
     m = midi(n)
-    if m >= 52:
-        return _pluck(n, dur, vel, damp)
-    f = hz(m)
-    t = t_arr(dur + 0.25)
-    ph = 2 * np.pi * f * t
-    x = np.sin(ph) + 0.25 * np.sin(2 * ph) + 0.06 * np.sin(3 * ph)
-    env = np.minimum(1.0, t / 0.008) * np.exp(-t / max(dur * 0.45, 0.12))
-    env *= np.clip((dur + 0.25 - t) / 0.08, 0, 1)
-    return lp(x * env, 700) * vel * 0.28
-
-
-_piano = piano
+    if m < 52:
+        return sample('harp', m, dur + 0.3, vel)
+    while m > 69:
+        m -= 12          # the strummed chords sit an octave lower, warmer
+    return sample('strum', m, dur + 0.2, vel)
 
 
 def piano(n, dur, vel=0.7, bright=0.5):
-    return lp(_piano(n, dur, vel * 0.6, bright * 0.7), 3500)
+    return sample('piano', n, dur + 0.4, vel)
 
 
 def noise_hit(dur=0.06, fc=7000, vel=0.3):
-    return _noise_hit(dur, min(fc, 5000), vel * 0.45)
+    return np.zeros(int(0.05 * SR))
 
-OUT = os.path.join(HERE, '..', 'audio')
-TMP = os.path.join(HERE, '_build')
-os.makedirs(TMP, exist_ok=True)
-R = np.random.default_rng(23)
+
 
 
 def soften(x):
@@ -92,42 +126,23 @@ def ogg(name, x, q=4):
 
 # ------------------------------------------------------------------ drums
 def kick(vel=0.8):
-    t = t_arr(0.35)
-    f = 45 + 80 * np.exp(-t / 0.03)
-    x = np.sin(2 * np.pi * np.cumsum(f) / SR) * np.exp(-t / 0.12)
-    x += lp(R.standard_normal(len(t)), 1800) * np.exp(-t / 0.004) * 0.3
-    return x * vel
+    return sample('kick', None, None, vel)
 
 
 def clap(vel=0.5):
-    t = t_arr(0.3)
-    x = np.zeros_like(t)
-    for k, d in enumerate([0.0, 0.011, 0.022]):
-        i = int(d * SR)
-        n = R.standard_normal(len(t) - i)
-        x[i:] += n * np.exp(-np.arange(len(t) - i) / SR / (0.008 if k < 2 else 0.07))
-    x = bp(x, 800, 3500)
-    return x * vel * 0.45
+    return sample('clap', None, None, vel)
 
 
 def snare(vel=0.5):
-    t = t_arr(0.25)
-    x = bp(R.standard_normal(len(t)), 1500, 7000) * np.exp(-t / 0.07)
-    x += np.sin(2 * np.pi * 190 * t) * np.exp(-t / 0.04) * 0.6
-    return x * vel * 0.6
+    return sample('snare', None, None, vel)
 
 
 def shaker(vel=0.25):
-    vel *= 0.55
-    t = t_arr(0.08)
-    x = hp(R.standard_normal(len(t)), 6000) * np.minimum(1, t / 0.012) * np.exp(-t / 0.025)
-    return x * vel
+    return sample('shaker', None, None, vel)
 
 
 def woodblock(f=820.0, vel=0.4):
-    t = t_arr(0.12)
-    x = np.sin(2 * np.pi * f * t) * np.exp(-t / 0.03) + 0.4 * np.sin(2 * np.pi * f * 2.71 * t) * np.exp(-t / 0.012)
-    return x * vel
+    return sample('wood', None, None, vel)
 
 
 def crash(vel=0.3, dur=2.2):
@@ -137,18 +152,8 @@ def crash(vel=0.3, dur=2.2):
 
 
 def whistle(n, dur, vel=0.5):
-    """a whistled note: a pure tone with breath and a little vibrato (an octave
-    lower than written: a high whistle is piercing)"""
-    f = hz(midi(n) - 12)
-    vel *= 0.75
-    L = dur + 0.12
-    t = t_arr(L)
-    vib = 1 + 0.006 * np.sin(2 * np.pi * 5.6 * t) * np.clip((t - 0.12) * 4, 0, 1)
-    ph = np.cumsum(f * vib) / SR
-    x = np.sin(2 * np.pi * ph) + 0.06 * np.sin(4 * np.pi * ph)
-    x += bp(R.standard_normal(len(t)), f * 0.8, f * 1.3) * 0.12
-    x *= env_adsr(len(t), 0.035, 0.05, 0.85, 0.1)
-    return x * vel * 0.32
+    """the whistled tune, played on an ocarina (an octave lower than written)"""
+    return sample('ocarina', midi(n) - 12, dur, vel, 0.12)
 
 
 def strum(tr, t0, notes, down=True, vel=0.32, dur=0.5, p=0.0, damp=0.992):
