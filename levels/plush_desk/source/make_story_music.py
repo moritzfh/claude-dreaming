@@ -38,7 +38,32 @@ def celesta(n, dur=1.2, vel=0.6):
     m = midi(n)
     while m > 81:
         m -= 12
-    return lp(_celesta(m, dur, vel * 0.8), 4200)
+    return lp(_celesta(m, dur, vel * 0.38), 4200)
+
+
+_pluck = pluck
+
+
+def pluck(n, dur=1.5, vel=0.5, damp=0.996):
+    """plucked strings; low notes (the bass) get a round, soft upright-bass
+    tone instead of the buzzy string model"""
+    m = midi(n)
+    if m >= 52:
+        return _pluck(n, dur, vel, damp)
+    f = hz(m)
+    t = t_arr(dur + 0.25)
+    ph = 2 * np.pi * f * t
+    x = np.sin(ph) + 0.25 * np.sin(2 * ph) + 0.06 * np.sin(3 * ph)
+    env = np.minimum(1.0, t / 0.008) * np.exp(-t / max(dur * 0.45, 0.12))
+    env *= np.clip((dur + 0.25 - t) / 0.08, 0, 1)
+    return lp(x * env, 700) * vel * 0.28
+
+
+_piano = piano
+
+
+def piano(n, dur, vel=0.7, bright=0.5):
+    return lp(_piano(n, dur, vel * 0.6, bright * 0.7), 3500)
 
 
 def noise_hit(dur=0.06, fc=7000, vel=0.3):
