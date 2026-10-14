@@ -605,6 +605,10 @@ func start() -> void:
 		(l as Light3D).visible = true
 	narrator.visible = true
 	hud.visible = true
+	if OS.get_cmdline_user_args().has("--pd_nonarrator"):
+		# recordings that get their own voice-over: no ribbon, no voice
+		narrator.visible = false
+		narrator.set("quiet", true)
 	if tall and not _tall_done:
 		_tall_done = true
 		narrator.call("set_tall")
