@@ -794,9 +794,11 @@ func _collect(lp: Vector3, delta: float) -> void:
 			spools += 1
 			events.append({"t": "spool", "p": Vector2(p.x, p.y), "i": path.size()})
 			spool_mm.set_instance_transform(i, Transform3D(Basis().scaled(Vector3.ZERO), p))
-			var notes := [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24]
-			var st: int = notes[mini(_chain, notes.size() - 1)]
-			Sound.sfx(A + "twinkle.ogg", -9.0, pow(2.0, (st - 5) / 12.0))
+			# a little rising tune along a chain of spools (one octave at most,
+			# higher gets shrill)
+			var notes := [0, 2, 4, 7, 9, 12]
+			var st: int = notes[_chain % notes.size()]
+			Sound.sfx(A + "twinkle.ogg", -13.0, pow(2.0, (st - 4) / 12.0))
 			_chain += 1
 			_chain_t = 0.9
 			_counter_pop = 1.0

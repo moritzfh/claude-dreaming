@@ -104,9 +104,13 @@ def squish():
 
 
 def twinkle():
-    a, b = celesta('C6', 0.6, 0.8), glock('C7', 0.2)
-    n = min(len(a), len(b), int(1.6 * SR))
-    ogg('twinkle', mono(norm(a[:n] + b[:n], 0.55)))
+    """a soft celesta pluck (the spools, little sparkles): warm, no glass on top"""
+    a = celesta('G5', 0.45, 0.7)
+    b = glock('G6', 0.12)
+    n = min(len(a), len(b), int(1.1 * SR))
+    x = lp(a[:n] + b[:n] * 0.35, 3800)
+    x *= np.exp(-np.arange(n) / SR / 0.5)
+    ogg('twinkle', mono(norm(x, 0.45)))
 
 
 def creak():
@@ -219,11 +223,11 @@ def hum():
 
 def chime():
     tr = Track(3.0)
-    for i, n in enumerate(['D6', 'F#6', 'A6', 'D7']):
+    for i, n in enumerate(['D5', 'F#5', 'A5', 'D6']):
         tr.add(i * 0.09, celesta(n, 0.8, 0.6), -0.3 + i * 0.2)
-        tr.add(i * 0.09, glock(n, 0.25), 0.3 - i * 0.2)
-    x = apply_reverb(tr.buf[: int(3.0 * SR)], 0.4, 2.5)
-    ogg('chime', norm(x, 0.6))
+        tr.add(i * 0.09, glock(n, 0.12), 0.3 - i * 0.2)
+    x = apply_reverb(tr.buf[: int(3.0 * SR)], 0.35, 2.2)
+    ogg('chime', norm(lp(x, 4500), 0.5))
 
 
 if __name__ == '__main__':

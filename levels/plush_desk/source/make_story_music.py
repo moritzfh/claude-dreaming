@@ -26,7 +26,14 @@ os.makedirs(TMP, exist_ok=True)
 R = np.random.default_rng(23)
 
 
+def soften(x):
+    """takes the glassy top off (celesta, glockenspiel and claps get shrill on phone speakers)"""
+    return x - 0.45 * hp(x, 5000) - 0.2 * hp(x, 2800)
+
+
 def ogg(name, x, q=4):
+    x = soften(x)
+    x = x / (np.abs(x).max() + 1e-9) * min(np.abs(x).max(), 0.6)
     wav = os.path.join(TMP, name + '.wav')
     save(wav, x)
     subprocess.run(['ffmpeg', '-v', 'error', '-y', '-i', wav, '-c:a', 'libvorbis', '-q:a', str(q),
