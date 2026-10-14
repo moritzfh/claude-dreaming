@@ -17,7 +17,7 @@ from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.join(HERE, '..', 'room.png')
-W, H = 320, 216
+W, H = 384, 216
 BAYER = np.array([[0, 8, 2, 10], [12, 4, 14, 6], [3, 11, 1, 9], [15, 7, 13, 5]], np.float32) / 16.0 + 1 / 32.0
 
 
@@ -87,7 +87,7 @@ def build():
 
     # ------------------------------------------------ light: window (cool), lamps (warm)
     WIN = (88, 82, 34)                                   # round window: centre, radius
-    LAMPS = [(30, 50, 0.55), (218, 52, 0.5), (280, 52, 0.5)]   # star lamp, two picture lamps
+    LAMPS = [(30, 50, 0.55), (218, 52, 0.5), (280, 52, 0.5), (342, 52, 0.5)]   # star lamp, three picture lamps
     cool = np.exp(-(((xx - WIN[0]) / 60.0) ** 2 + ((yy - WIN[1]) / 70.0) ** 2)) * 0.55
     warm = np.zeros((H, W), np.float32)
     for lx, ly, s in LAMPS:
@@ -340,15 +340,15 @@ def build():
         for x, ch in enumerate(row):
             if ch == '#': img[46 + y, 26 + x] = hexc('#fff0b8') if y < 5 else hexc('#f2d27a')
 
-    # ------------------------------------------------ brass lamps above the two picture frames
-    for fx in (218, 280):
+    # ------------------------------------------------ brass lamps above the three picture frames
+    for fx in (218, 280, 342):
         for x in range(fx - 9, fx + 10):
             img[53, x] = GOLD[2]; img[54, x] = GOLD[4] if abs(x - fx) < 7 else GOLD[3]; img[55, x] = GOLD[1]
         for y in range(49, 53): img[y, fx] = GOLD[1]
         img[48, fx - 1:fx + 2] = GOLD[0]
         img[56, fx - 6:fx + 7] = hexc('#fff3c8')
     # frame shadows (the frames themselves are put up by the game)
-    for (fx0, fy0) in ((190, 58), (252, 58)):
+    for (fx0, fy0) in ((190, 58), (252, 58), (314, 58)):
         for y in range(fy0 + 2, fy0 + 38):
             for x in range(fx0 + 56, fx0 + 58):
                 img[y, x] = (img[y, x].astype(np.int32) * 0.65).astype(np.uint8)
@@ -357,7 +357,7 @@ def build():
                 img[y, x] = (img[y, x].astype(np.int32) * 0.65).astype(np.uint8)
 
     # ------------------------------------------------ low bookshelf under the paintings
-    bx0, bx1 = 186, 312
+    bx0, bx1 = 186, 374
     for y in range(104, 152):
         for x in range(bx0, bx1 + 1):
             if y < 107: c = WOOD[4] if y == 104 else WOOD[3]
